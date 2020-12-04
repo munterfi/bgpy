@@ -1,4 +1,4 @@
-# Background process in python
+# Background processes in python
 
 ## Main
 
