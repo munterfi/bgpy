@@ -13,7 +13,7 @@ def main():
         write_log(f"Background process: Event iteration {i}")  
 
     print("All done!")
-    # perform any cleanup herie
+    # Perform any cleanup herie
     write_log("Background process: Event ended normally.")
 
 
@@ -27,8 +27,8 @@ if __name__ == "__main__":
 
     import signal
 
+    # No HUP signal on Windows, crashes yey ...
     # for sig in ('TERM', 'HUP', 'INT'): 
-    # No HUP signal on Windows, crashes yey ....
     for sig in ("TERM", "INT"):
         signal.signal(getattr(signal, "SIG" + sig), quit)
 
