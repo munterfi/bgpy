@@ -15,9 +15,9 @@ Calls the background processes using `Popen` from the `subprocess` module.
 
 Process writes to log and handles exit differently:
 
-* background_plain.py: Nothing done on exit.
-* background_gracful.py: Execute cleanup at the end of the iteration, delay.
-* background_event.py: Execute cleanup immediately when killed.
+* `background_plain.py`: Nothing done on exit.
+* `background_gracful.py`: Execute cleanup at the end of the iteration, delay.
+* `background_event.py`: Execute cleanup immediately when killed.
 
 ## License
 
