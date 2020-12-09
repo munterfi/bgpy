@@ -13,7 +13,7 @@ def main():
         write_log(f"Background process: Event iteration {i}")  
 
     print("All done!")
-    # Perform any cleanup herie
+    # Perform any cleanup here
     write_log("Background process: Event ended normally.")
 
 
