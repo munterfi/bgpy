@@ -23,7 +23,7 @@ Process writes to log and handles exit differently:
 
 MIT
 
-# References
+## References
 
 * [GracefulKiller class](https://stackoverflow.com/questions/18499497/how-to-process-sigterm-signal-gracefully)
 * [Event](https://stackoverflow.com/questions/5114292/break-interrupt-a-time-sleep-in-python/46346184#46346184)
