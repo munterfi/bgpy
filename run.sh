@@ -4,8 +4,8 @@
 # Description   :Starts the python main process which starts three different
 #                background processes and exits normally. Then starts
 #                monitoring the processes and log.
-# Author        :u228298 <merlin.unterfinger@sbb.ch>
-# Date          :2020-11-30
+# Author        :Merlin Unterfinger <info@munterfinger.ch>
+# Date          :2020-12-09
 # Version       :0.1.0
 # Usage         :./run.sh
 # Notes         :Need to kill the plain process manually as it will run

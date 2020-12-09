@@ -8,9 +8,10 @@ def main():
     clear_log()
     write_log("Main process: Started")
 
+    # Start background processes
     sleep(1)
     Popen([executable, "bg_py/background_plain.py"])
-    sleep(1)
+    sleep(0.5)
     Popen([executable, "bg_py/background_graceful.py"])
     sleep(0.5)
     Popen([executable, "bg_py/background_event.py"])
