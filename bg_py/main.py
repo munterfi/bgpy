@@ -3,19 +3,21 @@ from time import sleep
 from subprocess import Popen
 from sys import executable
 
+process_files = [
+    "background_plain.py",
+    "background_graceful.py",
+    "background_event.py",
+]
+
 
 def main():
     clear_log()
     write_log("Main process: Started")
 
-    # Start background processes
     sleep(1)
-    Popen([executable, "bg_py/background_plain.py"])
-    sleep(0.5)
-    Popen([executable, "bg_py/background_graceful.py"])
-    sleep(0.5)
-    Popen([executable, "bg_py/background_event.py"])
-    sleep(0.5)
+    for process_file in process_files:
+        Popen([executable, f"bg_py/{process_file}"])
+        sleep(0.5)
 
     write_log("Main process: Ended normally")
 

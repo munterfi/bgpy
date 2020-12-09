@@ -8,9 +8,9 @@ def main():
     write_log("Background process: Event started")
     i = 0
     while not exit.is_set():
-        i = i + 1
         exit.wait(2)
-        write_log(f"Background process: Event iteration {i}")  
+        write_log(f"Background process: Event iteration {i}") 
+        i = i + 1
 
     print("All done!")
     # Perform any cleanup here
@@ -27,7 +27,7 @@ if __name__ == "__main__":
 
     import signal
 
-    # No HUP signal on Windows, crashes yey ...
+    # No HUP signal on Windows, crashes ...
     # for sig in ('TERM', 'HUP', 'INT'): 
     for sig in ("TERM", "INT"):
         signal.signal(getattr(signal, "SIG" + sig), quit)
