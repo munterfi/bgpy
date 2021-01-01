@@ -9,14 +9,14 @@ Then you can kill the background processes manually and observe behaviour.
 
 ## Main process
 
-1. Sets up a file based communcation.
+1. Sets up a file-based communication.
 2. Calls the background processes using `Popen` from the `subprocess` module.
 3. Sends a dummy command `RUN` to the background processes.
 4. Exits and closes communication, which triggers the `KILL` command in the background processes.
 
 ## Background process
 
-Process writes to log, listens to the file based communication and handles exit differently:
+Process writes to log, listens to the file-based communication and handles exit differently:
 
 * `background_plain.py`: Nothing done on exit.
 * `background_gracful.py`: Execute cleanup at the end of the iteration, delay.
