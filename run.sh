@@ -13,8 +13,11 @@
 # Bash          :5.0.17
 # =============================================================================
 
+# Create tmp folder if not existing
+mkdir -p tmp
+
 # Flatten log
->bg_py.log
+>tmp/bg_py.log
 
 # Start main process
 python3 bg_py/main.py &
@@ -22,6 +25,6 @@ python3 bg_py/main.py &
 # Monitor
 while :; do
     clear
-    ps au && echo '' && tail -n 30 bg_py.log
+    ps au && echo '' && tail -n 30 tmp/bg_py.log
     sleep 2
 done
