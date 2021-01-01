@@ -1,13 +1,12 @@
 from datetime import datetime
 from os import getpid
-
-LOG_FILE = "bg_py.log"
+from environment import BG_LOG
 
 
 def clear_log():
-    open(LOG_FILE, "w").close()
+    open(BG_LOG, "w").close()
 
 
 def write_log(message):
-    with open(LOG_FILE, "a") as log:
+    with open(BG_LOG, "a") as log:
         log.write(f"{datetime.now().replace(microsecond=0)} - {getpid()}: {message}\n")

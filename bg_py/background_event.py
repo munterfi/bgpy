@@ -1,3 +1,6 @@
+from communication import _listen, Command
+from environment import BG_INTERVAL
+from environment import BG_INTERVAL
 from log import write_log
 from threading import Event
 
@@ -8,11 +11,18 @@ def main():
     write_log("Background process: Event started")
     i = 0
     while not exit.is_set():
-        exit.wait(2)
-        write_log(f"Background process: Event iteration {i}") 
+        exit.wait(BG_INTERVAL)
+        write_log(f"Background process: Event iteration {i}")
+
+        # Listen to commands
+        command = _listen()
+        if command is not None:
+            write_log(f"Background process: Event iteration received command: {command.name}")
+        if command in [Command.STOP, Command.KILL]:
+            break
+
         i = i + 1
 
-    print("All done!")
     # Perform any cleanup here
     write_log("Background process: Event ended normally.")
 
