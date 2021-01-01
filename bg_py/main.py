@@ -27,7 +27,7 @@ def main():
     _send(Command.RUN)
     write_log("Main process: Send RUN command")
 
-    sleep(20)
+    sleep(30)
     _cleanup()
     write_log("Main process: Communcation stopped")
 
