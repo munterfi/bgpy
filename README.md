@@ -1,6 +1,6 @@
 # Background processes in python
 
-Running python background processes using Popen from the subprocess module, establish file-based communication and exit gracefully on Unix-like operating systems.
+Running python background processes using `Popen` from the `subprocess` module, establish file-based communication and exit gracefully on Unix-like operating systems.
 
 Execute `./run.sh`, which will start the main process and monitor log and processes.
 Then you can kill the background processes manually and observe behaviour or wait until the main process stops the communication and thereby triggers exit of the background processes.
@@ -12,7 +12,7 @@ Then you can kill the background processes manually and observe behaviour or wai
 ## Main process
 
 1. Sets up a file-based communication.
-2. Calls the background processes using `Popen` from the `subprocess` module.
+2. Starts the background process using `Popen` from the `subprocess` module.
 3. Sends a dummy command `RUN` with arguments to the background processes.
 4. Exits and closes communication, which triggers the `KILL` command in the background processes.
 

@@ -17,7 +17,7 @@
 mkdir -p tmp
 
 # Flatten log
->tmp/bg_py.log
+>tmp/bg.log
 
 # Start main process
 python3 bg_py/main.py &
@@ -25,6 +25,6 @@ python3 bg_py/main.py &
 # Monitor
 while :; do
     clear
-    ps au && echo '' && tail -n 30 tmp/bg_py.log
+    ps au && echo '' && tail -n 30 tmp/bg.log
     sleep 2
 done
