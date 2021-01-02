@@ -7,7 +7,7 @@ Then you can kill the background processes manually and observe behaviour or wai
 
 ![Logs of the a run.sh execution](docs/run.png)
 
-**Note:** Ending `run.sh` by hitting `ctrl+c` will only end the `background_gracful.py` and `background_event.py` processes while `background_plain.py` is still running.
+**Note:** Exiting `run.sh` by hitting `ctrl+c` will only end the `background_gracful.py` and `background_event.py` processes while `background_plain.py` is still running.
 
 ## Main process
 
