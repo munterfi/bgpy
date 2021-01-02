@@ -1,9 +1,11 @@
 # Background processes in python
 
-Running python background processes using Popen from the subprocess module and exit gracefully on Unix-like operating systems.
+Running python background processes using Popen from the subprocess module, establish file-based communication and exit gracefully on Unix-like operating systems.
 
 Execute `./run.sh`, which will start the main process and monitor log and processes.
-Then you can kill the background processes manually and observe behaviour.
+Then you can kill the background processes manually and observe behaviour or wait until the main process stops the communication and thereby triggers exit of the background processes.
+
+![Logs of the a run.sh execution](docs/run.png)
 
 **Note:** Ending `run.sh` by hitting `ctrl+c` will only end the `background_gracful.py` and `background_event.py` processes while `background_plain.py` is still running.
 
@@ -22,7 +24,7 @@ Process writes to log, listens to the file-based communication and handles exit 
 * `background_gracful.py`: Execute cleanup at the end of the iteration, delay.
 * `background_event.py`: Execute cleanup immediately when killed.
 
-## License
+## Licenses
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
 

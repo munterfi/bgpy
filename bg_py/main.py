@@ -23,11 +23,12 @@ def main():
         Popen([executable, f"bg_py/{process_file}"])
         sleep(0.5)
 
-    sleep(10)
-    _send(Command.RUN)
-    write_log("Main process: Send RUN command")
+    sleep(20)
+    command = Command.RUN.set_args({'hello': 'world'})
+    _send(command)
+    write_log(f"Main process: Send command {command.name} with arguments '{command.args_to_json}'")
 
-    sleep(30)
+    sleep(20)
     _cleanup()
     write_log("Main process: Communcation stopped")
 

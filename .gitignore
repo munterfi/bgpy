@@ -133,3 +133,6 @@ dmypy.json
 
 # Temporary folder
 tmp/
+
+# macOS
+.DS_Store
