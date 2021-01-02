@@ -13,7 +13,7 @@ Then you can kill the background processes manually and observe behaviour or wai
 
 1. Sets up a file-based communication.
 2. Calls the background processes using `Popen` from the `subprocess` module.
-3. Sends a dummy command `RUN` to the background processes.
+3. Sends a dummy command `RUN` with arguments to the background processes.
 4. Exits and closes communication, which triggers the `KILL` command in the background processes.
 
 ## Background process
