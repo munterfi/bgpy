@@ -1,4 +1,4 @@
-from communication import _listen, Command
+from communication import _receive_command, _send_response, Message
 from environment import BG_INTERVAL
 from environment import BG_INTERVAL
 from log import write_log
@@ -15,10 +15,13 @@ def main():
         write_log(f"Background process: Event iteration {i}")
 
         # Listen to commands
-        command = _listen()
+        command = _receive_command()
         if command is not None:
-            write_log(f"Background process: Event iteration received command: {command.name} with arguments '{command.args_to_json}'")
-        if command in [Command.STOP, Command.KILL]:
+            _send_response(Message.OK.set_args({"Response": "Event OK"}))
+            write_log(
+                f"Background process: Event iteration received command: {command.name} with arguments '{command.args_to_json}'"
+            )
+        if command in [Message.EXIT, Message.KILL]:
             break
 
         i = i + 1
@@ -38,7 +41,7 @@ if __name__ == "__main__":
     import signal
 
     # No HUP signal on Windows, crashes ...
-    # for sig in ('TERM', 'HUP', 'INT'): 
+    # for sig in ('TERM', 'HUP', 'INT'):
     for sig in ("TERM", "INT"):
         signal.signal(getattr(signal, "SIG" + sig), quit)
 
