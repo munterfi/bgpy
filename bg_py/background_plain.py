@@ -13,11 +13,11 @@ while True:
     # Listen to commands
     command = _listen()
     if command is not None:
-        write_log(f"Background process: Plain iteration received command: {command.name}")
+        write_log(f"Background process: Plain iteration received command: {command.name} with arguments '{command.args_to_json}'")
     if command in [Command.STOP, Command.KILL]:
         break
     
     i = i + 1
 
 # Exit
-write_log("Background process: Plain ended gracefully. ")
+write_log("Background process: Plain ended normally. ")

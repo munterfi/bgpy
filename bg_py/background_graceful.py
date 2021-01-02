@@ -27,7 +27,7 @@ while not killer.kill_now:
     # Listen to commands
     command = _listen()
     if command is not None:
-        write_log(f"Background process: Graceful iteration received command: {command.name}")
+        write_log(f"Background process: Graceful iteration received command: {command.name} with arguments '{command.args_to_json}'")
     if command in [Command.STOP, Command.KILL]:
         break
 
