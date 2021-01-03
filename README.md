@@ -1,5 +1,7 @@
 # Background processes in python
 
+[![check](https://github.com/munterfinger/background-py/workflows/check/badge.svg)](https://github.com/munterfinger/background-py/actions)
+
 Running python background processes using `Popen` from the `subprocess` module, establish file-based communication in both directions and exit gracefully on Unix-like operating systems.
 
 Execute `./run.sh`, which starts the main process and monitors log and processes.

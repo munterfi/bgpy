@@ -1,5 +1,4 @@
-from communication import _receive_command, _send_response, Message
-from environment import BG_INTERVAL
+from communication import receive_command, send_response, Message
 from environment import BG_INTERVAL
 from log import write_log
 from threading import Event
@@ -15,9 +14,9 @@ def main():
         write_log(f"Background process: Event iteration {i}")
 
         # Listen to commands
-        command = _receive_command()
+        command = receive_command()
         if command is not None:
-            _send_response(Message.OK.set_args({"Response": "Event OK"}))
+            send_response(Message.OK.set_args({"Response": "Event OK"}))
             write_log(
                 f"Background process: Event iteration received command: {command.name} with arguments '{command.args_to_json}'"
             )

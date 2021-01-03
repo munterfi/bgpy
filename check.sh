@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-# Name          :run.sh
+# Name          :check.sh
 # Description   :Starts the python main process which starts three different
-#                background processes and exits normally. Then starts
-#                monitoring the processes and log.
+#                background processes and exits normally. After 25 seconds the
+#                log is checked.
 # Author        :Merlin Unterfinger <info@munterfinger.ch>
-# Date          :2020-12-09
+# Date          :2021-01-03
 # Version       :0.1.0
-# Usage         :./run.sh
-# Notes         :
+# Usage         :./check.sh
+# Notes         :Runs as GitHub Action.
 # Bash          :5.0.17
 # =============================================================================
 
@@ -22,8 +22,5 @@ mkdir -p tmp
 python3 bg_py/main.py &
 
 # Monitor
-while :; do
-    clear
-    ps au && echo '' && tail -n 30 tmp/bg.log
-    sleep 2
-done
+sleep 25
+ps au && echo '' && tail -n 30 tmp/bg.log

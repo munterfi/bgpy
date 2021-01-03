@@ -1,6 +1,6 @@
 from environment import BG_INTERVAL
 from log import write_log, clear_log
-from communication import _setup, _cleanup, _send_command, _receive_response, Message
+from communication import initialize, terminate, send_command, Message
 from time import sleep
 from subprocess import Popen
 from sys import executable
@@ -15,7 +15,7 @@ def main():
     clear_log()
     write_log("Main process: Started")
 
-    _setup()
+    initialize()
     write_log("Main process: Communication setup")
 
     sleep(BG_INTERVAL)
@@ -24,17 +24,17 @@ def main():
         sleep(BG_INTERVAL / 3)
 
     sleep(BG_INTERVAL * 4)
-    command = Message.EXECUTE.set_args({"hello": "world"})
+    command = Message.EXECUTE.set_args({"command": "hello", "args": {"value": "world"}})
     write_log(
         f"Main process: Send command {command.name} with arguments '{command.args_to_json}'"
     )
-    response = _send_command(command)
+    response = send_command(command)
     write_log(
         f"Main process: Received response {response.name} with arguments '{response.args_to_json}'"
     )
 
     sleep(BG_INTERVAL * 4)
-    _cleanup()
+    terminate()
     write_log("Main process: Communication stopped")
     write_log("Main process: Ended normally")
 

@@ -1,4 +1,4 @@
-from environment import BG_COMM, BG_INTERVAL
+from environment import BG_COMM_FILE, BG_INTERVAL
 from datetime import datetime, timedelta
 from enum import Enum
 from json import dumps, loads
@@ -29,20 +29,43 @@ class Message(Enum):
         return dumps(self.value[1])
 
 
-def _setup() -> None:
+def initialize() -> None:
+    """
+    Setup file-based communication.
+    """
     if _check_communication():
         print("Communcation file already exists.")
     else:
         _clear()
 
 
-def _send_command(command: Message, wait: int = BG_INTERVAL * 2):
+def send_command(command: Message, wait: int = BG_INTERVAL * 2) -> Message:
+    """
+    Send a command to the background process.
+
+    The command needs to be of type Message.EXECUTE, Message.EXIT or
+    Message.KILL. After sending the command, it is waited for a response
+    of the background process.
+
+    Parameters
+    ----------
+    command : Message
+        A EXECUTE, EXIT or KILL message with arguments.
+    wait : int, optional
+        Time to wait for response of the background process,
+        by default BG_INTERVAL*2
+
+    Returns
+    -------
+    Message
+        The response from the background process.
+    """
     if _check_communication():
         if not _check_command(command):
             return Message.ERROR.set_args(
                 {"message": f"Command of invalid message type {command.name}."}
             )
-        with open(BG_COMM, "w") as f:
+        with open(BG_COMM_FILE, "w") as f:
             f.write(f"{command.name}\n{command.args_to_json}")
         stop = datetime.now() + timedelta(seconds=wait)
         while datetime.now() < stop:
@@ -57,13 +80,30 @@ def _send_command(command: Message, wait: int = BG_INTERVAL * 2):
         return Message.ERROR.set_args({"message": "Communication not yet initialized."})
 
 
-def _send_response(response: Message):
+def send_response(response: Message) -> Union[None, Message]:
+    """
+    Sends a response from the background process.
+
+    After a 'send_command' call, the calling process waits for a response from
+    the background process. This function is used to respond on the side of the
+    background process.
+
+    Parameters
+    ----------
+    response : Message
+        Response message of type OK or ERROR.
+
+    Returns
+    -------
+    Union[None, Message]
+        None if succesfully send response, else an ERROR.
+    """
     if _check_communication():
         if not _check_response(response):
             return Message.ERROR.set_args(
                 {"message": f"Response of invalid message type {response.name}."}
             )
-        with open(BG_COMM, "w") as f:
+        with open(BG_COMM_FILE, "w") as f:
             f.write(f"{response.name}\n{response.args_to_json}")
         sleep(BG_INTERVAL)
         _clear()
@@ -71,15 +111,15 @@ def _send_response(response: Message):
         return Message.ERROR.set_args({"message": "Communication not yet initialized."})
 
 
-def _receive_response():
+def _receive_response() -> Union[Message, None]:
     if _check_communication():
         if _check_message():
-            with open(BG_COMM, "r") as f:
+            with open(BG_COMM_FILE, "r") as f:
                 lines = f.readlines()
                 try:
                     name = lines[0].rstrip("\n")
                     args = lines[1].rstrip("\n")
-                except KeyError:
+                except IndexError:
                     return None
             try:
                 response = Message[name].args_from_json(args)
@@ -95,15 +135,28 @@ def _receive_response():
         return Message.ERROR.set_args({"message": "Communication not yet initialized."})
 
 
-def _receive_command():
+def receive_command() -> Union[None, Message]:
+    """
+    Receive a command in the background process.
+
+    In order to make the background process listening to commands, this
+    function should be called on a regular basis (e.g. a while loop with sleep
+    time 'BG_INTERVAL').
+
+    Returns
+    -------
+    Union[None, Message]
+        Returns None if no command is received or an EXECUTE, EXIT or KILL
+        message if a command is received.
+    """
     if _check_communication():
         if _check_message():
-            with open(BG_COMM, "r") as f:
+            with open(BG_COMM_FILE, "r") as f:
                 lines = f.readlines()
                 try:
                     name = lines[0].rstrip("\n")
                     args = lines[1].rstrip("\n")
-                except KeyError:
+                except IndexError:
                     return None
             try:
                 command = Message[name].args_from_json(args)
@@ -119,23 +172,29 @@ def _receive_command():
         return Message.KILL.set_args({"message": "Communication lost."})
 
 
-def _clear() -> None:
-    open(BG_COMM, "w").close()
+def terminate() -> None:
+    """
+    Terminate file-based communication.
 
-
-def _cleanup() -> None:
+    Removes the communcation file and thereby send KILL message to listening
+    background processes.
+    """
     if _check_communication():
-        BG_COMM.unlink()
+        BG_COMM_FILE.unlink()
     else:
-        print("No communcation file to cleanup exists.")
+        print("No communcation file to terminate exists.")
+
+
+def _clear() -> None:
+    open(BG_COMM_FILE, "w").close()
 
 
 def _check_communication():
-    return BG_COMM.is_file()
+    return BG_COMM_FILE.is_file()
 
 
 def _check_message():
-    return BG_COMM.stat().st_size != 0
+    return BG_COMM_FILE.stat().st_size != 0
 
 
 def _check_command(message: Message):

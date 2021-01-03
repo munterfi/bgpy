@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "background-py"
+version = "0.1.0"
+description = "Running python background processes using Popen from the subprocess module, establish file-based communication in both directions and exit gracefully on Unix-like operating systems."
+authors = ["Merlin Unterfinger <info@munterfinger.ch>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+[tool.poetry.dev-dependencies]
+black = "^20.8b1"
+flake8 = "^3.8.4"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
