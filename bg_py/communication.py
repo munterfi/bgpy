@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from enum import Enum
 from json import dumps, loads
 from time import sleep
-from typing import Union
+from typing import Union, Tuple, TypedDict
 
 
 class Message(Enum):
@@ -12,17 +12,18 @@ class Message(Enum):
 
     The message types defined in this enum include:
 
-        - KILL: Never sent as message, triggered by the background process itself.
-        - EXIT: Message to tell process to exit.
-        - EXECUTE: Message with function call and arguments to execute.
+        - KILL: Never sent, triggered by the background process itself.
+        - EXIT: Command message to tell process to exit.
+        - EXECUTE: Command message with function call and arguments to execute.
         - OK: Response message, optionally with return values.
-        - ERROR: Error message.
+        - ERROR: Error response message.
     """
-    KILL = (0, {})
-    EXIT = (1, {})
-    EXECUTE = (2, {"command": "", "args": {}})
-    OK = (3, {"response": {}})
-    ERROR = (4, {"message": "Error occured."})
+
+    KILL = (0, {})  # type: Tuple[int, EmptyDict]
+    EXIT = (1, {})  # type: Tuple[int, EmptyDict]
+    EXECUTE = (2, {"command": "", "args": {}})  # type: Tuple[int, ExecuteDict]
+    OK = (3, {"message": "OK.", "values": {}})  # type: Tuple[int, OKDict]
+    ERROR = (4, {"message": "An error occured."})  # Tuple[int, ErrorDict]
 
     def __init__(self, idx, args):
         self.idx = idx
@@ -40,6 +41,24 @@ class Message(Enum):
 
     def args_to_json(self):
         return dumps(self.value[1])
+
+
+class ExecuteDict(TypedDict):
+    command: str
+    args: dict
+
+
+class OKDict(TypedDict):
+    message: str
+    values: dict
+
+
+class ErrorDict(TypedDict):
+    message: str
+
+
+class EmptyDict(TypedDict):
+    pass
 
 
 def initialize() -> None:
@@ -73,24 +92,25 @@ def send_command(command: Message, wait: int = BG_INTERVAL * 2) -> Message:
     Message
         The response from the background process.
     """
-    if _check_communication():
-        if not _check_command(command):
-            return Message.ERROR.set_args(
-                {"message": f"Command of invalid message type {command.name}."}
-            )
-        with open(BG_COMM_FILE, "w") as f:
-            f.write(f"{command.name}\n{command.args_to_json()}")
-        stop = datetime.now() + timedelta(seconds=wait)
-        while datetime.now() < stop:
-            response = _receive_response()
-            if response is not None:
-                break
-        else:
-            response = Message.ERROR.set_args({"message": "No response received."})
-        _clear()
-        return response
+    if not _check_communication():
+        return Message.ERROR.set_args(
+            {"message": "Communication not yet initialized."}
+        )
+    if not _check_command(command):
+        return Message.ERROR.set_args(
+            {"message": f"Command of invalid message type {command.name}."}
+        )
+    with open(BG_COMM_FILE, "w") as f:
+        f.write(f"{command.name}\n{command.args_to_json()}")
+    stop = datetime.now() + timedelta(seconds=wait)
+    while datetime.now() < stop:
+        response = _receive_response()
+        if response is not None:
+            _clear()
+            return response
     else:
-        return Message.ERROR.set_args({"message": "Communication not yet initialized."})
+        _clear()
+        return Message.ERROR.set_args({"message": "No response received."})
 
 
 def send_response(response: Message) -> Union[None, Message]:
@@ -111,41 +131,41 @@ def send_response(response: Message) -> Union[None, Message]:
     Union[None, Message]
         None if succesfully send response, else an ERROR.
     """
-    if _check_communication():
-        if not _check_response(response):
-            return Message.ERROR.set_args(
-                {"message": f"Response of invalid message type {response.name}."}
-            )
-        with open(BG_COMM_FILE, "w") as f:
-            f.write(f"{response.name}\n{response.args_to_json()}")
-        sleep(BG_INTERVAL)
-        _clear()
-    else:
-        return Message.ERROR.set_args({"message": "Communication not yet initialized."})
+    if not _check_communication():
+        return Message.ERROR.set_args(
+            {"message": "Communication not yet initialized."}
+        )
+    if not _check_response(response):
+        return Message.ERROR.set_args(
+            {"message": f"Response of invalid message type {response.name}."}
+        )
+    with open(BG_COMM_FILE, "w") as f:
+        f.write(f"{response.name}\n{response.args_to_json()}")
+    sleep(BG_INTERVAL)
+    _clear()
+    return None
 
 
 def _receive_response() -> Union[Message, None]:
-    if _check_communication():
-        if _check_message():
-            with open(BG_COMM_FILE, "r") as f:
-                lines = f.readlines()
-                try:
-                    name = lines[0].rstrip("\n")
-                    args = lines[1].rstrip("\n")
-                except IndexError:
-                    return None
-            try:
-                response = Message[name].args_from_json(args)
-            except KeyError:
-                response = Message.ERROR.set_args(
-                    {"message": f"Unknown response message type {name}."}
-                )
-            if _check_response(response):
-                return response
-        else:
+    if not _check_message():
+        return None
+    with open(BG_COMM_FILE, "r") as f:
+        lines = f.readlines()
+        try:
+            name = lines[0].rstrip("\n")
+            args = lines[1].rstrip("\n")
+        except IndexError:
             return None
+    try:
+        response = Message[name].args_from_json(args)
+    except KeyError:
+        return Message.ERROR.set_args(
+            {"message": f"Unknown response message type {name}."}
+        )
+    if _check_response(response):
+        return response
     else:
-        return Message.ERROR.set_args({"message": "Communication not yet initialized."})
+        return None
 
 
 def receive_command() -> Union[None, Message]:
@@ -162,27 +182,27 @@ def receive_command() -> Union[None, Message]:
         Returns None if no command is received or an EXECUTE, EXIT or KILL
         message if a command is received.
     """
-    if _check_communication():
-        if _check_message():
-            with open(BG_COMM_FILE, "r") as f:
-                lines = f.readlines()
-                try:
-                    name = lines[0].rstrip("\n")
-                    args = lines[1].rstrip("\n")
-                except IndexError:
-                    return None
-            try:
-                command = Message[name].args_from_json(args)
-            except KeyError:
-                command = Message.KILL.set_args(
-                    {"message": f"Unknown command message type {name}."}
-                )
-            if _check_command(command):
-                return command
-        else:
-            return None
-    else:
+    if not _check_communication():
         return Message.KILL.set_args({"message": "Communication lost."})
+    if not _check_message():
+        return None
+    with open(BG_COMM_FILE, "r") as f:
+        lines = f.readlines()
+        try:
+            name = lines[0].rstrip("\n")
+            args = lines[1].rstrip("\n")
+        except IndexError:
+            return None
+    try:
+        command = Message[name].args_from_json(args)
+    except KeyError:
+        return Message.KILL.set_args(
+            {"message": f"Unknown command message type {name}."}
+        )
+    if _check_command(command):
+        return command
+    else:
+        return None
 
 
 def terminate() -> None:
