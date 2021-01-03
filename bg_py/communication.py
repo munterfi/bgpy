@@ -79,7 +79,7 @@ def _receive_response():
                 try:
                     name = lines[0].rstrip("\n")
                     args = lines[1].rstrip("\n")
-                except KeyError:
+                except IndexError:
                     return None
             try:
                 response = Message[name].args_from_json(args)
@@ -103,7 +103,7 @@ def _receive_command():
                 try:
                     name = lines[0].rstrip("\n")
                     args = lines[1].rstrip("\n")
-                except KeyError:
+                except IndexError:
                     return None
             try:
                 command = Message[name].args_from_json(args)

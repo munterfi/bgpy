@@ -24,7 +24,7 @@ def main():
         sleep(BG_INTERVAL / 3)
 
     sleep(BG_INTERVAL * 4)
-    command = Message.EXECUTE.set_args({"hello": "world"})
+    command = Message.EXECUTE.set_args({"command": "hello", "args": {"value": "world"}})
     write_log(
         f"Main process: Send command {command.name} with arguments '{command.args_to_json}'"
     )
