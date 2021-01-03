@@ -8,8 +8,7 @@
 # Date          :2020-12-09
 # Version       :0.1.0
 # Usage         :./run.sh
-# Notes         :Need to kill the plain process manually as it will run
-#                forever in background.
+# Notes         :
 # Bash          :5.0.17
 # =============================================================================
 

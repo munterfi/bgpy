@@ -1,4 +1,4 @@
-from communication import _receive_command, _send_response, Message
+from communication import receive_command, send_response, Message
 from environment import BG_INTERVAL
 from log import write_log
 from time import sleep
@@ -25,9 +25,9 @@ while not killer.kill_now:
     write_log(f"Background process: Graceful iteration {i}")
 
     # Listen to commands
-    command = _receive_command()
+    command = receive_command()
     if command is not None:
-        _send_response(Message.OK.set_args({"Response": "Graceful OK"}))
+        send_response(Message.OK.set_args({"Response": "Graceful OK"}))
         write_log(
             f"Background process: Graceful iteration received command: {command.name} with arguments '{command.args_to_json}'"
         )
