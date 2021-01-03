@@ -7,7 +7,17 @@ from typing import Union
 
 
 class Message(Enum):
+    """
+    Message types for the communication.
 
+    The message types defined in this enum include:
+
+        - KILL: Never sent as message, triggered by the background process itself.
+        - EXIT: Message to tell process to exit.
+        - EXECUTE: Message with function call and arguments to execute.
+        - OK: Response message, optionally with return values.
+        - ERROR: Error message.
+    """
     KILL = (0, {})
     EXIT = (1, {})
     EXECUTE = (2, {"command": "", "args": {}})
@@ -17,6 +27,10 @@ class Message(Enum):
     def __init__(self, idx, args):
         self.idx = idx
 
+    @property
+    def args(self):
+        return self.value[1]
+
     def set_args(self, args):
         self._value_ = (self.idx, args)
         return self
@@ -24,7 +38,6 @@ class Message(Enum):
     def args_from_json(self, json):
         return self.set_args(loads(json))
 
-    @property
     def args_to_json(self):
         return dumps(self.value[1])
 
@@ -66,7 +79,7 @@ def send_command(command: Message, wait: int = BG_INTERVAL * 2) -> Message:
                 {"message": f"Command of invalid message type {command.name}."}
             )
         with open(BG_COMM_FILE, "w") as f:
-            f.write(f"{command.name}\n{command.args_to_json}")
+            f.write(f"{command.name}\n{command.args_to_json()}")
         stop = datetime.now() + timedelta(seconds=wait)
         while datetime.now() < stop:
             response = _receive_response()
@@ -104,7 +117,7 @@ def send_response(response: Message) -> Union[None, Message]:
                 {"message": f"Response of invalid message type {response.name}."}
             )
         with open(BG_COMM_FILE, "w") as f:
-            f.write(f"{response.name}\n{response.args_to_json}")
+            f.write(f"{response.name}\n{response.args_to_json()}")
         sleep(BG_INTERVAL)
         _clear()
     else:

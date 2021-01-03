@@ -15,7 +15,7 @@ while True:
     if command is not None:
         send_response(Message.OK.set_args({"Response": "Plain OK"}))
         write_log(
-            f"Background process: Plain iteration received command: {command.name} with arguments '{command.args_to_json}'"
+            f"Background process: Plain iteration received command: {command.name} with arguments '{command.args_to_json()}'"
         )
     if command in [Message.EXIT, Message.KILL]:
         break
