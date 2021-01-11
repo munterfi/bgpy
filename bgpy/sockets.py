@@ -4,7 +4,7 @@ from environment import BG_HOST, BG_PORT, BG_LOG_FILE, BG_BACKLOG, BG_MSG_LEN
 from serialize import serialize, deserialize
 from pathlib import Path
 from contextlib import ContextDecorator
-from socket import socket, AF_INET, SOCK_STREAM, error
+from socket import socket, AF_INET, SOCK_STREAM, SHUT_WR, SOL_SOCKET, SO_REUSEADDR, error 
 
 
 class ClientSocket(ContextDecorator):
@@ -24,8 +24,9 @@ class ClientSocket(ContextDecorator):
         return self
 
     def __exit__(self, *exc):
-        self.log.write(f"ClientSocket closed")
+        self.sock.shutdown(SHUT_WR)
         self.sock.close()
+        self.log.write(f"ClientSocket closed")
         return False
 
     def connect(self, host: str = BG_HOST, port: int = BG_PORT):
@@ -41,12 +42,16 @@ class ClientSocket(ContextDecorator):
         msg = serialize(msg)
         self.sock.sendall(msg)
         res = self.sock.recv(BG_MSG_LEN)
+        if len(msg) == 0:
+            return None
         res = deserialize(res)
         self.log.write(f"Received '{res}'")
         return res
 
     def recv(self):
         msg = self.sock.recv(BG_MSG_LEN)
+        if len(msg) == 0:
+            return None
         msg = deserialize(msg)
         res_msg = f"Received '{msg}'"
         self.log.write(res_msg)
@@ -68,6 +73,7 @@ class ServerSocket(ContextDecorator):
     ) -> None:
         self.log = Log(log_file, "Server", verbose)
         self.sock = socket(AF_INET, SOCK_STREAM)
+        self.sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
         try:
             self.sock.bind((host, port))
             self.log.write(f"ServerSocket listening to '{host}:{port}'")
@@ -80,8 +86,9 @@ class ServerSocket(ContextDecorator):
         return self
 
     def __exit__(self, *exc):
-        self.log.write(f"ServerSocket closed")
+        #self.sock.shutdown(SHUT_RD)
         self.sock.close()
+        self.log.write(f"ServerSocket closed")
         return False
 
     def accept(self):

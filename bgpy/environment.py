@@ -1,7 +1,7 @@
 from pathlib import Path
 
 
-BG_HOME = Path("bgpy")
+BG_HOME = Path(".bgpy")
 BG_HOME.mkdir(parents=True, exist_ok=True)
 BG_LOG_FILE = BG_HOME / "bgpy.log"
 
