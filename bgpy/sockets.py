@@ -4,7 +4,18 @@ from environment import BG_HOST, BG_PORT, BG_LOG_FILE, BG_BACKLOG, BG_MSG_LEN
 from serialize import serialize, deserialize
 from pathlib import Path
 from contextlib import ContextDecorator
-from socket import socket, AF_INET, SOCK_STREAM, SHUT_WR, SOL_SOCKET, SO_REUSEADDR, error 
+from socket import (
+    socket,
+    AF_INET,
+    SOCK_STREAM,
+    SHUT_WR,
+    SOL_SOCKET,
+    SO_REUSEADDR,
+    error,
+)
+
+HEADER_SIZE = 10
+BUFFER_SIZE = 16
 
 
 class ClientSocket(ContextDecorator):
@@ -40,16 +51,21 @@ class ClientSocket(ContextDecorator):
     def send(self, msg: Message):
         self.log.write(f"Sending '{msg}'")
         msg = serialize(msg)
-        self.sock.sendall(msg)
-        res = self.sock.recv(BG_MSG_LEN)
+        self._send(msg)
+        res = self._recv()
         if len(msg) == 0:
             return None
         res = deserialize(res)
         self.log.write(f"Received '{res}'")
         return res
 
+    def _send(self, msg):
+        msg = bytes(f"{len(msg):<{HEADER_SIZE}}", "utf-8") + msg
+        self.sock.sendall(msg)
+        # time.sleep(0.1)  # Give receiver time to complete reading.
+
     def recv(self):
-        msg = self.sock.recv(BG_MSG_LEN)
+        msg = self._recv()
         if len(msg) == 0:
             return None
         msg = deserialize(msg)
@@ -58,8 +74,37 @@ class ClientSocket(ContextDecorator):
         res = Message(MessageType.OK, args={"message": res_msg})
         self.log.write(f"Responding '{res}'")
         res = serialize(res)
-        self.sock.sendall(res)
+        self._send(res)
         return msg
+
+    def _recv(self):
+        # Setup empty message and count
+        msg = b""
+        chunk_count = 0
+
+        while True:
+            chunk_count += 1
+            chunk = self.sock.recv(BUFFER_SIZE)
+
+            if chunk == b"":
+                return None
+
+            # Get message length from header
+            # Set new message to False, after header is read.
+            if chunk_count == 1:
+                msg_len = int(chunk[:HEADER_SIZE])
+                print(f"Received chunk {chunk_count} with header: {msg_len}")
+            else:
+                print(f"Received chunk {chunk_count}")
+
+            # Add chunk to message
+            msg += chunk
+
+            # Check if message is complete
+            if len(msg) - HEADER_SIZE == msg_len:
+                print(f"Message complete: {msg_len}")
+                # Remove header
+                return msg[HEADER_SIZE:]
 
 
 class ServerSocket(ContextDecorator):
@@ -86,7 +131,7 @@ class ServerSocket(ContextDecorator):
         return self
 
     def __exit__(self, *exc):
-        #self.sock.shutdown(SHUT_RD)
+        # self.sock.shutdown(SHUT_RD)
         self.sock.close()
         self.log.write(f"ServerSocket closed")
         return False
