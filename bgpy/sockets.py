@@ -66,6 +66,8 @@ class ClientSocket(ContextDecorator):
 
     def recv(self):
         msg = self._recv()
+        if msg is None:
+            return None
         if len(msg) == 0:
             return None
         msg = deserialize(msg)
