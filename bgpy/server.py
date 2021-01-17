@@ -1,5 +1,5 @@
-from sockets import ClientSocket, ServerSocket
 from message import Message, MessageType
+from sockets import ClientSocket, ServerSocket
 
 # Server
 INIT = False
@@ -9,7 +9,7 @@ with ServerSocket() as ss:
 
     while not EXIT:
 
-        sock, addr = ss.accept()
+        sock = ss.accept()
 
         with ClientSocket(sock=sock) as cs:
             while True:
@@ -33,4 +33,13 @@ with ServerSocket() as ss:
 
                 if msg.type is MessageType.EXEC:
                     print("EXEC!")
-
+                    if msg.get_args()["await_response"]:
+                        print("RESP!")
+                        res = Message(
+                            MessageType.OK,
+                            args={
+                                "message": "Response to request",
+                                "reponse": {"param", "value"},
+                            },
+                        )
+                        cs.send(res)

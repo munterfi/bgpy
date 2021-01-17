@@ -1,11 +1,9 @@
 from enum import Enum
-from json import dumps, loads
-from typing import Union, Tuple, TypedDict
 
 
 class MessageType(Enum):
     """
-    Message types for the communication.
+    Message types for the messages in the communication.
 
     The message types defined in this enum include:
 
@@ -24,7 +22,14 @@ class MessageType(Enum):
 
 
 class Message:
-    """"""
+    """
+    Messages for the socket communciation.
+
+    Messages to be sent and reveiced via the client sockets. The message
+    consists of a message type and arguments. The message type is fixed in the
+    communication between the client sockets, and the arguments are used for
+    confirmation, error messages and communicating response values.
+    """
 
     __slots__ = ["type", "args"]
 
@@ -36,7 +41,27 @@ class Message:
         return self.type.name
 
     def get_args(self) -> dict:
+        """
+        Get the argument dict of the message.
+
+        Returns
+        -------
+        dict
+            Arguments of the message.
+        """
         return self.args
 
     def set_args(self, args: dict) -> None:
+        """
+        Set the argument dict of the message.
+
+        Parameters
+        ----------
+        args : dict
+            Arguments to set on the message.
+
+        Returns
+        -------
+        None
+        """
         self.args = args
