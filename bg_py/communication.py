@@ -13,6 +13,7 @@ class Message(Enum):
     The message types defined in this enum include:
 
         - KILL: Never sent, triggered by the background process itself.
+        - INIT: Only sent once to initialize the background process.
         - EXIT: Command message to tell process to exit.
         - EXECUTE: Command message with function call and arguments to execute.
         - OK: Response message, optionally with return values.
@@ -20,10 +21,11 @@ class Message(Enum):
     """
 
     KILL = (0, {})  # type: Tuple[int, EmptyDict]
-    EXIT = (1, {})  # type: Tuple[int, EmptyDict]
-    EXECUTE = (2, {"command": "", "args": {}})  # type: Tuple[int, ExecuteDict]
-    OK = (3, {"message": "OK.", "values": {}})  # type: Tuple[int, OKDict]
-    ERROR = (4, {"message": "An error occured."})  # Tuple[int, ErrorDict]
+    INIT = (1, {"background_loop": "base64", "init_args": {}})  # type: Tuple[int, InitializationDict]
+    EXIT = (2, {})  # type: Tuple[int, EmptyDict]
+    EXECUTE = (3, {"command": "", "args": {}})  # type: Tuple[int, ExecuteDict]
+    OK = (4, {"message": "OK.", "values": {}})  # type: Tuple[int, OKDict]
+    ERROR = (5, {"message": "An error occured."})  # Tuple[int, ErrorDict]
 
     def __init__(self, idx, args):
         self.idx = idx
@@ -46,6 +48,11 @@ class Message(Enum):
 class ExecuteDict(TypedDict):
     command: str
     args: dict
+
+        
+class InitializationDict(TypedDict):
+    background_loop: str
+    init_args: dict
 
 
 class OKDict(TypedDict):
@@ -71,7 +78,7 @@ def initialize() -> None:
         _clear()
 
 
-def send_command(command: Message, wait: int = BG_INTERVAL * 2) -> Message:
+def send_command(command: Message, wait: int = BG_INTERVAL * 10) -> Message:
     """
     Send a command to the background process.
 
@@ -205,6 +212,31 @@ def receive_command() -> Union[None, Message]:
         return None
 
 
+def _receive_initialization() -> Union[None, Message]:
+    if not _check_communication():
+        return Message.KILL.set_args({"message": "Communication lost."})
+    if not _check_message():
+        return None
+    with open(BG_COMM_FILE, "r") as f:
+        lines = f.readlines()
+        try:
+            name = lines[0].rstrip("\n")
+            args = lines[1].rstrip("\n")
+        except IndexError:
+            return None
+    try:
+        initialization = Message[name].args_from_json(args)
+    except KeyError:
+        send_response(Message.OK.set_args({"Error": "Unknown command message type, initialization failed."}))
+        return None
+    if initialization is Message.INIT:
+        send_response(Message.OK.set_args({"Response": "Initialization OK"}))
+        return initialization
+    else:
+        send_response(Message.OK.set_args({"Error": f"Received message of type {initialization.name}, initialization failed."}))
+        return None
+
+
 def terminate() -> None:
     """
     Terminate file-based communication.
@@ -231,7 +263,7 @@ def _check_message():
 
 
 def _check_command(message: Message):
-    if message in [Message.EXIT, Message.KILL, Message.EXECUTE]:
+    if message in [Message.INIT, Message.EXECUTE, Message.EXIT, Message.KILL]:
         return True
     else:
         return False
@@ -242,3 +274,4 @@ def _check_response(message: Message):
         return True
     else:
         return False
+
