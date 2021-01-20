@@ -5,14 +5,14 @@ from .interface import respond  # NOQA
 
 def run(host, port):
     """
-    [summary]
+    Run a bgpy server.
 
     Parameters
     ----------
-    host : [type]
-        [description]
-    port : [type]
-        [description]
+    host : str, optional
+        Address of the host where the server runs.
+    port : int, optional
+        Port where the server is listening.
     """
 
     INIT = False
@@ -55,7 +55,8 @@ def run(host, port):
                     if msg.type is MessageType.EXIT:
 
                         # Execute exit_task, returns None
-                        _ = exit_task(cs, init_args, msg.get_args())
+                        if INIT:
+                            _ = exit_task(cs, init_args, msg.get_args())
 
                         # Set exit to True and trigger exit
                         EXIT = True
