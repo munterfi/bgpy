@@ -1,26 +1,24 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-# Name          :check.sh
-# Description   :Starts the python main process which starts three different
-#                background processes and exits normally. After 25 seconds the
-#                log is checked.
+# Name          :checks.sh
+# Description   :Script for running all package (pytest, coverage, mypy and
+#                flake8) checks.
 # Author        :Merlin Unterfinger <info@munterfinger.ch>
-# Date          :2021-01-03
+# Date          :2021-01-18
 # Version       :0.1.0
-# Usage         :./check.sh
-# Notes         :Runs as GitHub Action.
-# Bash          :5.0.17
+# Usage         :./checks.sh
+# Notes         :
+# Bash          :5.1.4
 # =============================================================================
 
-# Create tmp folder if not existing
-mkdir -p tmp
+echo '*** pytest: Tests and coverage ***'
+poetry run pytest --cov=bgpy tests/
 
-# Flatten log
->tmp/bg.log
+echo -e '\n*** mypy: Static type checks ***'
+poetry run mypy --config-file pyproject.toml .
 
-# Start main process
-python3 bg_py/main.py &
+echo -e '\n*** flake8: Code linting ***'
+poetry run flake8 . --count --exit-zero --max-complexity=10 --statistics
 
-# Monitor
-sleep 25
-ps au && echo '' && tail -n 30 tmp/bg.log
+echo -e '\n*** Building documentation ***'
+cd docs && poetry run make html && cd ..

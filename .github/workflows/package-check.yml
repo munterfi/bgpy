@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   check:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     strategy:
       matrix:
         python-version: [3.8]
@@ -35,7 +35,15 @@ jobs:
         # Install
         poetry install
 
-    - name: Run check
+    - name: Run checks
       run: |
         source "$HOME/.poetry/env"
-        poetry run bash check.sh
+        poetry run flake8 bgpy tests --count --max-complexity=10
+        #poetry run mypy --config-file pyproject.toml .
+        poetry run pytest --cov=bgpy
+        cd docs && poetry run make html && cd ..
+
+    - name: Upload coverage reports to Codecov
+      run: |
+        source "$HOME/.poetry/env"
+        poetry run codecov
