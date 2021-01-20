@@ -30,7 +30,7 @@ Get the stable release of the package from pypi:
     pip install bgpy
 
 
-Run an example background process on localhost and communicate using stream sockets.
+Run an example background process on localhost and communicate using stream sockets:
 
 .. code-block:: python
 
