@@ -29,14 +29,6 @@ jobs:
         poetry config virtualenvs.in-project true
         poetry install
 
-    - name: Run checks
-      run: |
-        source "$HOME/.poetry/env"
-        poetry run flake8 bgpy tests --count --max-complexity=10
-        #poetry run mypy --config-file pyproject.toml .
-        poetry run pytest --cov=bgpy
-        cd docs && poetry run make html && cd ..
-
     - name: Build and publish
       env:
         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
