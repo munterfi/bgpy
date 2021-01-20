@@ -1,5 +1,5 @@
-from sockets import ClientSocket
-from interface import respond
+from ..sockets import ClientSocket
+from ..interface import respond
 
 
 def init_task(client_socket: ClientSocket) -> dict:
@@ -7,7 +7,9 @@ def init_task(client_socket: ClientSocket) -> dict:
     return init_args
 
 
-def exec_task(client_socket: ClientSocket, init_args: dict, exec_args: dict) -> dict:
+def exec_task(
+    client_socket: ClientSocket, init_args: dict, exec_args: dict
+) -> dict:
     init_args["request_count"] += 1
     if exec_args["command"] == "increase":
         init_args["value"] += exec_args["value_change"]
@@ -16,7 +18,9 @@ def exec_task(client_socket: ClientSocket, init_args: dict, exec_args: dict) -> 
     return init_args
 
 
-def exit_task(client_socket: ClientSocket, init_args: dict, exit_args: dict) -> None:
+def exit_task(
+    client_socket: ClientSocket, init_args: dict, exit_args: dict
+) -> None:
     init_args["request_count"] += 1
     init_args["status"] = "Exited."
     respond(client_socket, init_args)

@@ -1,45 +1,72 @@
-from message import Message, MessageType
-from sockets import ClientSocket, ServerSocket
+from .message import MessageType
+from .sockets import ClientSocket, ServerSocket
+from .interface import respond  # NOQA
 
-# Server
-INIT = False
-EXIT = False
 
-with ServerSocket() as ss:
+def run(host, port):
+    """
+    [summary]
 
-    while not EXIT:
+    Parameters
+    ----------
+    host : [type]
+        [description]
+    port : [type]
+        [description]
+    """
 
-        sock = ss.accept()
+    INIT = False
+    EXIT = False
 
-        with ClientSocket(sock=sock) as cs:
-            while True:
-                msg = cs.recv()
-                if msg is None:
-                    break
+    with ServerSocket(host, port) as ss:
 
-                if msg.type is MessageType.EXIT:
-                    print("EXIT!")
-                    EXIT = True
-                    break
+        while not EXIT:
+            sock = ss.accept()
 
-                if msg.type is MessageType.INIT:
-                    print("INIT!")
-                    INIT = True
-                    continue
+            with ClientSocket(sock=sock) as cs:
 
-                if not INIT:
-                    print("Initialize first!")
-                    continue
+                while True:
 
-                if msg.type is MessageType.EXEC:
-                    print("EXEC!")
-                    if msg.get_args()["await_response"]:
-                        print("RESP!")
-                        res = Message(
-                            MessageType.OK,
-                            args={
-                                "message": "Response to request",
-                                "reponse": {"param", "value"},
-                            },
-                        )
-                        cs.send(res)
+                    # Read messages
+                    msg = cs.recv()
+                    if msg is None:
+                        break
+
+                    # Message type: INIT
+                    if msg.type is MessageType.INIT:
+                        if INIT:
+                            print("Already initialised.")
+                            continue
+
+                        # Extract tasks from INIT message
+                        tasks = msg.get_args()
+                        init_task = tasks["init_task"]
+                        exec_task = tasks["exec_task"]
+                        exit_task = tasks["exit_task"]
+
+                        # Execute INIT task and setup init_args
+                        init_args = init_task(cs)
+
+                        # Set INIT to True to avoid second initialization
+                        INIT = True
+                        continue
+
+                    # Message type: EXIT
+                    if msg.type is MessageType.EXIT:
+
+                        # Execute exit_task, returns None
+                        _ = exit_task(cs, init_args, msg.get_args())
+
+                        # Set exit to True and trigger exit
+                        EXIT = True
+                        break
+
+                    if not INIT:
+                        print("Initialize first!")
+                        continue
+
+                    # Message type: EXEC
+                    if msg.type is MessageType.EXEC:
+
+                        # Execute exec_task and overwrite init_args
+                        init_args = exec_task(cs, init_args, msg.get_args())

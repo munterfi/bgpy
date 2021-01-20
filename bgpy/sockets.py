@@ -1,4 +1,4 @@
-from environment import (
+from .environment import (
     BG_HOST,
     BG_PORT,
     BG_LOG_FILE,
@@ -6,9 +6,9 @@ from environment import (
     BG_HEADER_SIZE,
     BG_BUFFER_SIZE,
 )
-from log import Log
-from message import Message, MessageType
-from serialize import serialize, deserialize
+from .log import Log
+from .message import Message, MessageType
+from .serialize import serialize, deserialize
 from contextlib import ContextDecorator
 from pathlib import Path
 from socket import (
@@ -90,7 +90,7 @@ class ClientSocket(ContextDecorator):
             host, port = self.sock.getpeername()
             self.log.write(f"ClientSocket connected to '{host}:{port}'")
         except error as e:
-            self.log.write(e)
+            self.log.write(str(e))
             raise error(e)
 
     def send(self, msg: Message, await_response: bool = False) -> Message:
