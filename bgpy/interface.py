@@ -1,4 +1,4 @@
-from .environment import BG_HOST, BG_PORT
+from .environment import BG_HOST, BG_PORT, BG_SLEEP
 from .message import Message, MessageType
 from .sockets import ClientSocket
 from subprocess import Popen
@@ -48,7 +48,7 @@ def initialize(
         Response of the server.
     """
     _ = Popen(["bgpy", "server", f"{host}", f"{port}"])
-    sleep(0.5)
+    sleep(BG_SLEEP)
     with ClientSocket() as cs:
         cs.connect(host, port)
         msg = Message(

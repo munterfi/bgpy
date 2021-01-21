@@ -16,9 +16,18 @@ bgpy
 .. image:: https://codecov.io/gh/munterfinger/bgpy/branch/master/graph/badge.svg
         :target: https://codecov.io/gh/munterfinger/bgpy
 
+
 Running local or remote python servers in the background using :code:`Popen` from the
 subprocess module and establish stream socket-based communication with clients
 in both directions.
+
+Why?
+
+ - Start and initialize a server process with a simple Python script. Once this parent script is terminated, the server process continues to run in the background.
+ - Send Python objects between the server and client processes (stored in a :code:`dict`) without worrying about serialization, message length, chunksize in the network buffer, and setting up server and client sockets.
+ - Due to the socket-based communication between server and client, it is possible to resume the communication from any location, as long as access to the same network is given and the hostname and port on which the server is listening is known.
+ - The communication between client and server is operating system independent (not like FIFO pipes for example). Furthermore, on Windows it is possible to communicate between the Windows Subsystem for Linux (WSL) and the Windows host system using bgpy.
+ - Optionally start the server on the remote using the command line interface (:code:`bgpy server <host> <port>`), and initialize it from the client (:code:`initialize(host, port, init_task, exec_task, exit_task)`) using python.
 
 Getting started
 ---------------

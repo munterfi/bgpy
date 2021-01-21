@@ -9,6 +9,7 @@ BG_LOG_FILE = BG_HOME / "bgpy.log"
 BG_HOST = "127.0.0.1"  # IP adress of the Server, default localhost
 BG_PORT = 50014  # Port used by server
 BG_BACKLOG = 1  # Backlog size of the server socket (client queue)
+BG_SLEEP = 1
 
 # Network buffer
 BG_HEADER_SIZE = 16  # Size of the header of the first chunk (message length)
