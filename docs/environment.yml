@@ -1,0 +1,8 @@
+name: bgpy_docs
+channels:
+- conda-forge
+dependencies:
+- sphinx
+- tomlkit
+- typer
+- pydata-sphinx-theme
