@@ -88,7 +88,7 @@ class ClientSocket(ContextDecorator):
 
     def send(
         self, msg: Message, await_response: bool = False
-    ) -> Optional[object]:
+    ) -> Optional[Message]:
         """
         Send a message to client socket.
 
@@ -131,9 +131,11 @@ class ClientSocket(ContextDecorator):
         self.log.write(f"Received '{res}'")
         if await_response:
             self.log.write("Waiting for response")
-            res = self.recv()
-            if res is None:
+            res_2 = self.recv()
+            if res_2 is None:
                 return None
+            else:
+                return res_2
         return res
 
     def _buffered_send(self, msg: bytes) -> None:
@@ -156,7 +158,7 @@ class ClientSocket(ContextDecorator):
         self.sock.sendall(msg)
         sleep(0.1)  # Give receiver time to complete reading.
 
-    def recv(self) -> Optional[object]:
+    def recv(self) -> Optional[Message]:
         """
         Receive message from client socket.
 
