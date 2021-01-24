@@ -3,7 +3,7 @@ from .sockets import ClientSocket, ServerSocket
 from .interface import respond  # NOQA
 
 
-def run(host, port):
+def run(host, port, log_file):
     """
     Run a bgpy server.
 
@@ -18,12 +18,12 @@ def run(host, port):
     INIT = False
     EXIT = False
 
-    with ServerSocket(host, port) as ss:
+    with ServerSocket(host, port, log_file=log_file) as ss:
 
         while not EXIT:
             sock = ss.accept()
 
-            with ClientSocket(sock=sock) as cs:
+            with ClientSocket(sock=sock, log_file=log_file) as cs:
 
                 while True:
 

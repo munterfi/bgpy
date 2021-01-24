@@ -1,11 +1,4 @@
-from .environment import (
-    BG_HOST,
-    BG_PORT,
-    BG_LOG_FILE,
-    BG_BACKLOG,
-    BG_HEADER_SIZE,
-    BG_BUFFER_SIZE,
-)
+from .environment import LOG_FILE, BACKLOG_SIZE, HEADER_SIZE, BUFFER_SIZE
 from .log import Log
 from .message import Message, MessageType
 from .serialize import serialize, deserialize
@@ -21,7 +14,7 @@ from socket import (
     SOL_SOCKET,
 )
 from time import sleep
-from typing import Union
+from typing import Optional
 
 
 class ClientSocket(ContextDecorator):
@@ -34,7 +27,7 @@ class ClientSocket(ContextDecorator):
     def __init__(
         self,
         sock: socket = None,
-        log_file: Path = BG_LOG_FILE,
+        log_file: Optional[Path] = LOG_FILE,
         verbose: bool = True,
     ) -> None:
         """
@@ -44,11 +37,11 @@ class ClientSocket(ContextDecorator):
         ----------
         sock : socket, optional
             An existing stream socket to use or None to create a new one,
-            by default None
+            by default None.
         log_file : Path, optional
-            Path to write the logs, by default BG_LOG_FILE
+            Path to write the logs, by default LOG_FILE.
         verbose : bool, optional
-            Print logs also to the screen, by default True
+            Print logs also to the screen, by default True.
         """
         if sock is None:
             self.log = Log(log_file, "Client", verbose)
@@ -68,16 +61,16 @@ class ClientSocket(ContextDecorator):
         self.log.write("ClientSocket closed")
         return False
 
-    def connect(self, host: str = BG_HOST, port: int = BG_PORT):
+    def connect(self, host: str, port: int):
         """
         Connect to port on host.
 
         Parameters
         ----------
         host : str, optional
-            Address or name of the host, by default BG_HOST
+            Address or name of the host
         port : int, optional
-            Port on the host to connect to, by default BG_PORT
+            Port on the host to connect to
 
         Raises
         ------
@@ -93,7 +86,9 @@ class ClientSocket(ContextDecorator):
             self.log.write(str(e))
             raise error(e)
 
-    def send(self, msg: Message, await_response: bool = False) -> Message:
+    def send(
+        self, msg: Message, await_response: bool = False
+    ) -> Optional[object]:
         """
         Send a message to client socket.
 
@@ -127,12 +122,12 @@ class ClientSocket(ContextDecorator):
         args = msg.get_args()
         args["await_response"] = await_response
         msg.set_args(args)
-        msg = serialize(msg)
-        self._buffered_send(msg)
-        res = self._buffered_recv()
-        if res is None:
+        msg_enc = serialize(msg)
+        self._buffered_send(msg_enc)
+        res_enc = self._buffered_recv()
+        if res_enc is None:
             return None
-        res = deserialize(res)
+        res = deserialize(res_enc)
         self.log.write(f"Received '{res}'")
         if await_response:
             self.log.write("Waiting for response")
@@ -141,7 +136,7 @@ class ClientSocket(ContextDecorator):
                 return None
         return res
 
-    def _buffered_send(self, msg: Message) -> None:
+    def _buffered_send(self, msg: bytes) -> None:
         """
         Send message with header.
 
@@ -150,18 +145,18 @@ class ClientSocket(ContextDecorator):
 
         Parameters
         ----------
-        msg : Message
-            The message to send (all types) with arguments.
+        msg : bytes
+            The message to send (all types) with arguments as bytes.
 
         Returns
         -------
             None
         """
-        msg = bytes(f"{len(msg):<{BG_HEADER_SIZE}}", "utf-8") + msg
+        msg = bytes(f"{len(msg):<{HEADER_SIZE}}", "utf-8") + msg
         self.sock.sendall(msg)
         sleep(0.1)  # Give receiver time to complete reading.
 
-    def recv(self) -> Message:
+    def recv(self) -> Optional[object]:
         """
         Receive message from client socket.
 
@@ -173,24 +168,24 @@ class ClientSocket(ContextDecorator):
         Message
             A message of type OK or Error
         """
-        msg = self._buffered_recv()
-        if msg is None:
+        msg_enc = self._buffered_recv()
+        if msg_enc is None:
             return None
-        msg = deserialize(msg)
+        msg = deserialize(msg_enc)
         res_msg = f"Received '{msg}'"
         self.log.write(res_msg)
         res = Message(MessageType.OK, args={"message": res_msg})
         self.log.write(f"Responding '{res}'")
-        res = serialize(res)
-        self._buffered_send(res)
+        res_enc = serialize(res)
+        self._buffered_send(res_enc)
         return msg
 
-    def _buffered_recv(self) -> Union[bytes, None]:
+    def _buffered_recv(self) -> Optional[bytes]:
         """
         Receive message from network buffer.
 
-        Reads chunks with length 'BG_BUFFER_SIZE' from the network buffer.
-        In the header with size 'BG_HEADER_SIZE' of the first chunk, the total
+        Reads chunks with length 'BUFFER_SIZE' from the network buffer.
+        In the header with size 'HEADER_SIZE' of the first chunk, the total
         message length is stored. Chunks are received until the total message
         length is reached. Then, the function returns the message without the
         header of the first chunk. If the remote socket is closed (msg == b""),
@@ -205,16 +200,16 @@ class ClientSocket(ContextDecorator):
         chunk_count = 0
         while True:
             chunk_count += 1
-            chunk = self.sock.recv(BG_BUFFER_SIZE)
+            chunk = self.sock.recv(BUFFER_SIZE)
             if chunk == b"":
                 return None
             if chunk_count == 1:
-                msg_len = int(chunk[:BG_HEADER_SIZE])
+                msg_len = int(chunk[:HEADER_SIZE])
                 # self.log.write(f"Detected chunk header, length={msg_len}")
             msg += chunk
-            if len(msg) - BG_HEADER_SIZE == msg_len:
+            if len(msg) - HEADER_SIZE == msg_len:
                 # self.log.write(f"Message complete with chunks={chunk_count}")
-                return msg[BG_HEADER_SIZE:]
+                return msg[HEADER_SIZE:]
 
 
 class ServerSocket(ContextDecorator):
@@ -228,10 +223,10 @@ class ServerSocket(ContextDecorator):
 
     def __init__(
         self,
-        host: str = BG_HOST,
-        port: int = BG_PORT,
-        backlog: int = BG_BACKLOG,
-        log_file: Path = BG_LOG_FILE,
+        host: str,
+        port: int,
+        backlog: int = BACKLOG_SIZE,
+        log_file: Optional[Path] = LOG_FILE,
         verbose: bool = True,
     ) -> None:
         """
@@ -247,7 +242,7 @@ class ServerSocket(ContextDecorator):
             Size of the backlog/queue of clients on the server,
             by default BG_BACKLOG
         log_file : Path, optional
-            Path to write the logs, by default BG_LOG_FILE
+            Path to write the logs, by default LOG_FILE
         verbose : bool, optional
             Print logs also to the screen, by default True
 
@@ -265,7 +260,7 @@ class ServerSocket(ContextDecorator):
             self.sock.bind((host, port))
             self.log.write(f"ServerSocket listening to '{host}:{port}'")
         except error as e:
-            self.log.write(e)
+            self.log.write(str(e))
             raise error(e)
         self.sock.listen(backlog)
 
@@ -273,7 +268,6 @@ class ServerSocket(ContextDecorator):
         return self
 
     def __exit__(self, *exc):
-        # self.sock.shutdown(SHUT_RD)
         self.sock.close()
         self.log.write("ServerSocket closed")
         return False

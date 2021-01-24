@@ -1,16 +1,16 @@
 from pathlib import Path
 
 # Paths
-BG_HOME = Path.home() / ".bgpy"
-BG_HOME.mkdir(parents=True, exist_ok=True)
-BG_LOG_FILE = BG_HOME / "bgpy.log"
+HOME = Path.home() / ".bgpy"
+HOME.mkdir(parents=True, exist_ok=True)
+LOG_FILE = HOME / "comm.log"
 
 # Sockets
-BG_HOST = "127.0.0.1"  # IP adress of the Server, default localhost
-BG_PORT = 50014  # Port used by server
-BG_BACKLOG = 1  # Backlog size of the server socket (client queue)
-BG_SLEEP = 1
+HOST = "127.0.0.1"  # IP adress of the Server, default localhost
+PORT = 50014  # Port used by server
+STARTUP_TIME = 1  # Time to sleep before sending INIT message to a new server
+BACKLOG_SIZE = 3  # Backlog size of the server socket (client queue)
 
 # Network buffer
-BG_HEADER_SIZE = 16  # Size of the header of the first chunk (message length)
-BG_BUFFER_SIZE = 1024 * 2  # Size of the vjunks in the network buffer
+HEADER_SIZE = 16  # Size of the header of the first chunk (message length)
+BUFFER_SIZE = 1024 * 2  # Size of the vjunks in the network buffer

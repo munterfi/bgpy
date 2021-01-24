@@ -1,8 +1,9 @@
-from .environment import BG_HOST, BG_PORT, BG_SLEEP
+from .environment import HOST, PORT, STARTUP_TIME, LOG_FILE
 from .message import Message, MessageType
 from .sockets import ClientSocket
 from subprocess import Popen
-from typing import Callable
+from typing import Callable, Union
+from pathlib import Path
 from time import sleep
 
 
@@ -10,8 +11,9 @@ def initialize(
     init_task: Callable,
     exec_task: Callable,
     exit_task: Callable,
-    host: str = BG_HOST,
-    port: int = BG_PORT,
+    host: str = HOST,
+    port: int = PORT,
+    log_file: Union[Path, None] = LOG_FILE,
 ) -> dict:
     """
     Run and intialize a bgpy server on the given host, which starts listening
@@ -38,18 +40,20 @@ def initialize(
         from the 'init_task'). With 'respond' a second message can be sent to
         the client.
     host : str, optional
-        Address of the host to run the server on, by default BG_HOST.
+        Address of the host to run the server on, by default HOST.
     port : int, optional
-        Port where the server will listen, by default BG_PORT.
+        Port where the server will listen, by default PORT.
 
     Returns
     -------
     dict
         Response of the server.
     """
-    _ = Popen(["bgpy", "server", f"{host}", f"{port}"])
-    sleep(BG_SLEEP)
-    with ClientSocket() as cs:
+    _ = Popen(
+        ["bgpy", "server", f"{host}", f"{port}", f"--log-file={str(log_file)}"]
+    )
+    sleep(STARTUP_TIME)
+    with ClientSocket(log_file=log_file) as cs:
         cs.connect(host, port)
         msg = Message(
             MessageType.INIT,
@@ -66,8 +70,9 @@ def initialize(
 def execute(
     exec_args: dict,
     await_response: bool = False,
-    host: str = BG_HOST,
-    port: int = BG_PORT,
+    host: str = HOST,
+    port: int = PORT,
+    log_file: Union[Path, None] = LOG_FILE,
 ) -> dict:
     """
     Send a command to the server
@@ -85,16 +90,16 @@ def execute(
         Wait for a second 'custom' response of the server,
         by default False
     host : str, optional
-        Address of the host where the server runs, by default BG_HOST.
+        Address of the host where the server runs, by default HOST.
     port : int, optional
-        Port where the server is listening, by default BG_PORT.
+        Port where the server is listening, by default PORT.
 
     Returns
     -------
     dict
         Response of the server.
     """
-    with ClientSocket() as cs:
+    with ClientSocket(log_file=log_file) as cs:
         cs.connect(host, port)
         msg = Message(MessageType.EXEC, args=exec_args)
         res = cs.send(msg, await_response=await_response)
@@ -124,14 +129,15 @@ def respond(client_socket: ClientSocket, response: dict) -> dict:
     """
     msg = Message(MessageType.OK, args=response)
     res = client_socket.send(msg)
-    return res.get_args()
+    return res.get_args()  # type: ignore
 
 
 def terminate(
     exit_args: dict = {},
     await_response: bool = False,
-    host: str = BG_HOST,
-    port: int = BG_PORT,
+    host: str = HOST,
+    port: int = PORT,
+    log_file: Union[Path, None] = LOG_FILE,
 ) -> dict:
     """
     Terminate the server
@@ -147,16 +153,16 @@ def terminate(
         Wait for a second 'custom' response of the server,
         by default False
     host : str, optional
-        Address of the host where the server runs, by default BG_HOST.
+        Address of the host where the server runs, by default HOST.
     port : int, optional
-        Port where the server is listening, by default BG_PORT.
+        Port where the server is listening, by default PORT.
 
     Returns
     -------
     dict
         Response of the server.
     """
-    with ClientSocket() as cs:
+    with ClientSocket(log_file=log_file) as cs:
         cs.connect(host, port)
         msg = Message(MessageType.EXIT, args=exit_args)
         res = cs.send(msg, await_response=await_response)

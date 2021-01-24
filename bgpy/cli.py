@@ -1,6 +1,9 @@
+from .environment import LOG_FILE
 from .server import run
 from .interface import terminate
 from typer import Typer, echo, Abort
+from typing import Union
+from pathlib import Path
 
 try:
     from importlib import metadata
@@ -12,30 +15,34 @@ app = Typer(add_completion=False)
 
 
 @app.command("server")
-def run_server(host: str, port: int) -> None:
-    """Run a bgpy server
-
-    Run a bgpy server on the given host, which starts listening to the provided
+def run_server(
+    host: str, port: int, log_file: Union[Path, None] = LOG_FILE
+) -> None:
+    """Run a bgpy server on the given host, which starts listening to the provided
     port.
     Note: Before calling 'initialize()' and passing 'init_task()', exec_task()'
     and 'exit_task()' to the server, it will not respond to requests.
     """
+    if str(log_file) == "None":
+        log_file = None
     try:
-        run(host=host, port=int(port))
+        run(host=host, port=int(port), log_file=log_file)
     except OSError as e:
         echo(e)
         Abort()
 
 
 @app.command("terminate")
-def terminate_server(host: str, port: int) -> None:
-    """Terminate a bgpy server
-
-    Terminate a bgpy server on the given host, which is listening to the
+def terminate_server(
+    host: str, port: int, log_file: Union[Path, None] = LOG_FILE
+) -> None:
+    """Terminate a bgpy server on the given host, which is listening to the
     provided port.
     """
+    if str(log_file) == "None":
+        log_file = None
     try:
-        terminate(host=host, port=int(port))
+        terminate(host=host, port=int(port), log_file=log_file)
     except OSError as e:
         echo(e)
         Abort()
@@ -43,9 +50,7 @@ def terminate_server(host: str, port: int) -> None:
 
 @app.command("version")
 def version_info():
-    """Version information
-
-    Prints the version of the package.
+    """Prints the version of the package.
     """
     package = "bgpy"
     version = metadata.version(package)

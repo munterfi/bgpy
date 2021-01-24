@@ -2,18 +2,27 @@
 
 """Tests for `bgpy.cli` module."""
 
-from bgpy.environment import BG_HOST, BG_PORT, BG_SLEEP
+from bgpy.environment import HOME, HOST, PORT, STARTUP_TIME
 from time import sleep
 from subprocess import Popen
 
+LOG_FILE = HOME / "test_cli.log"
+
 # Start background process
-start = Popen(["bgpy", "server", f"{BG_HOST}", f"{BG_PORT}"])
+start = Popen(
+    ["bgpy", "server", f"{HOST}", f"{PORT}", f"--log-file={LOG_FILE}"]
+)
 
 # Wait to ensure client socket does not miss server socket
-sleep(BG_SLEEP)
+sleep(STARTUP_TIME)
 
 # Terminate
-stop = Popen(["bgpy", "server", f"{BG_HOST}", f"{BG_PORT}"])
+stop = Popen(
+    ["bgpy", "terminate", f"{HOST}", f"{PORT}", f"--log-file={LOG_FILE}"]
+)
+
+# Wait to ensure server socket is shut down, before next test starts
+sleep(STARTUP_TIME)
 
 
 def test_cli_success():
