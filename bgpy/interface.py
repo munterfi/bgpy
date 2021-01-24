@@ -26,7 +26,7 @@ def initialize(
     init_task : Callable
         Task that runs once during initialization and can be used to set up the
         server. The return value of this function must be a dict, which is then
-        given to the 'exec_task' function with with every request.
+        passed to the 'exec_task' function with every request of a client.
     exec_task : Callable
         Task that is called each time a request is made. Here the message from
         the 'execute' function has to be interpreted and a task is defined
