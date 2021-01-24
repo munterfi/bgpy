@@ -1,3 +1,4 @@
+from .environment import LOG_FILE
 from .server import run
 from .interface import terminate
 from typer import Typer, echo, Abort
@@ -15,12 +16,12 @@ app = Typer(add_completion=False)
 
 @app.command("server")
 def run_server(
-    host: str, port: int, log_file: Optional[Path] = None
+    host: str, port: int, log_file: Optional[Path] = LOG_FILE
 ) -> None:
-    """Run a bgpy server on the given host, which starts listening to the provided
-    port.
+    """Run a bgpy server on the given host, which starts listening to the
+    provided port.
     Note: Before calling 'initialize()' and passing 'init_task()', exec_task()'
-    and 'exit_task()' to the server, it will not respond to requests.
+    and 'exit_task()' to the server, the server will not respond to requests.
     """
     if str(log_file) == "None":
         log_file = None
@@ -33,7 +34,7 @@ def run_server(
 
 @app.command("terminate")
 def terminate_server(
-    host: str, port: int, log_file: Optional[Path] = None
+    host: str, port: int, log_file: Optional[Path] = LOG_FILE
 ) -> None:
     """Terminate a bgpy server on the given host, which is listening to the
     provided port.
@@ -49,8 +50,7 @@ def terminate_server(
 
 @app.command("version")
 def version_info():
-    """Prints the version of the package.
-    """
+    """Prints the version of the package."""
     package = "bgpy"
     version = metadata.version(package)
     echo(f"{package} {version}")
