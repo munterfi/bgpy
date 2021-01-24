@@ -43,12 +43,7 @@ jobs:
         poetry run pytest --cov=bgpy
         cd docs && poetry run make html && cd ..
 
-    - name: Check logs
-      run: |
-        echo $HOME
-        ls "$HOME/.bgpy/"
-
-    - name: Upload logs
+    - name: Upload logs as artifacts
       uses: actions/upload-artifact@v2
       with:
         name: check-logs
