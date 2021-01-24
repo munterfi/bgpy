@@ -2,7 +2,7 @@ from .environment import HOST, PORT, STARTUP_TIME, LOG_FILE
 from .message import Message, MessageType
 from .sockets import ClientSocket
 from subprocess import Popen
-from typing import Callable, Union
+from typing import Callable, Optional
 from pathlib import Path
 from time import sleep
 
@@ -13,7 +13,7 @@ def initialize(
     exit_task: Callable,
     host: str = HOST,
     port: int = PORT,
-    log_file: Union[Path, None] = LOG_FILE,
+    log_file: Optional[Path] = LOG_FILE,
 ) -> dict:
     """
     Run and intialize a bgpy server on the given host, which starts listening
@@ -72,7 +72,7 @@ def execute(
     await_response: bool = False,
     host: str = HOST,
     port: int = PORT,
-    log_file: Union[Path, None] = LOG_FILE,
+    log_file: Optional[Path] = LOG_FILE,
 ) -> dict:
     """
     Send a command to the server
@@ -137,7 +137,7 @@ def terminate(
     await_response: bool = False,
     host: str = HOST,
     port: int = PORT,
-    log_file: Union[Path, None] = LOG_FILE,
+    log_file: Optional[Path] = LOG_FILE,
 ) -> dict:
     """
     Terminate the server
