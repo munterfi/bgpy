@@ -38,16 +38,15 @@ Install the stable release of the package from pypi:
 
     pip install bgpy
 
-Define task
-^^^^^^^^^^^
+Define tasks
+^^^^^^^^^^^^
 
 Run and intialize a bgpy server on the given host, which starts listening
 to the provided port. After starting the server, a INIT message with the
 :code:`init_task`, :code:`exec_task()` and :code:`exit_task()` tasks are send
 to the server in order to complete the initialization.
 
-Initialization task
-___________________
+* **Initialization task**
 
 Task that runs once during initialization and can be used to set up the
 server. The return value of this function must be a dict, which is then
@@ -59,8 +58,7 @@ passed to the :code:`exec_task` function with every request by a client.
         init_args = {"request_count": 0, "value": 1000}
         return init_args
 
-Execution task
-______________
+* **Execution task**
 
 Task that is called each time a request is made by a client to the server.
 In this task the message from the :code:`execute` function has to be
@@ -80,8 +78,7 @@ standard confirmation of the receipt of the message.
                 init_args["value"] -= exec_args["value_change"]
         return init_args
 
-Exit task
-_________
+* **Exit task**
 
 Task that is executed once if a exit message is sent to the server by
 the :code:`terminate` function. The input of the :code:`exit_task` is the
