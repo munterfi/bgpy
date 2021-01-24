@@ -32,34 +32,14 @@ Features:
 Getting started
 ---------------
 
-Get the stable release of the package from pypi:
+Install the stable release of the package from pypi:
 
 .. code-block:: shell
 
     pip install bgpy
 
-
-Run an example background process on localhost and communicate using stream sockets:
-
-.. code-block:: python
-
-    from bgpy.interface import initialize, execute, terminate
-    from bgpy.example.tasks import init_task, exec_task, exit_task
-
-    # Start background process
-    initialize(init_task, exec_task, exit_task)
-
-    # Increase value
-    execute({"command": "increase", "value_change": 10})
-
-    # Decrease value
-    execute({"command": "decrease", "value_change": 100})
-
-    # Terminate
-    args = terminate(await_response=True)
-
-Usage
------
+Define task
+^^^^^^^^^^^
 
 Run and intialize a bgpy server on the given host, which starts listening
 to the provided port. After starting the server, a INIT message with the
@@ -123,9 +103,33 @@ second response (:code:`terminate(..., await_response=True`).
 **Note:** If the client is set to wait for a second response
 (:code:`execute(..., await_response=True` or
 :code:`terminate(..., await_response=True`) it is important to handle this on 
-the server side by sending a response to the client using :code:`respond`!
+the server side by sending a response to the client using :code:`respond`.
 Otherwise the client may be waiting forever as there is no timeout specified.
 
+
+Run the server
+^^^^^^^^^^^^^^
+
+Run an example background process on localhost and send requests using client sockets:
+
+.. code-block:: python
+
+    # Import example tasks, same as defined in the section above
+    from bgpy.example.tasks import init_task, exec_task, exit_task
+
+    from bgpy.interface import initialize, execute, terminate
+
+    # Start background process and initialize
+    initialize(init_task, exec_task, exit_task)
+
+    # Execute command "increase" on server
+    execute({"command": "increase", "value_change": 10})
+
+    # Execute command "decrease" on server
+    execute({"command": "decrease", "value_change": 100})
+
+    # Terminate and wait for second response
+    args = terminate(await_response=True)
 
 License
 -------
