@@ -45,6 +45,8 @@ jobs:
 
     - name: Upload logs
       uses: actions/upload-artifact@v2
+      run: |
+        ls "$HOME/.bgpy/"
       with:
         name: check-logs
         path: "$HOME/.bgpy/" 
