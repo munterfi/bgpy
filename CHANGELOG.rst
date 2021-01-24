@@ -9,7 +9,8 @@ Version 0.1.0.9000
 - Features:
     - CLI command :code:`bgpy version` to check for the version of the package.
     - Restructure environment variables, remove :code:`HOST` and :code:`PORT` from core socket classes.
-    - Move log file handling to the interface, create seperate log file for each test.
+    - Move log file handling to the interface, create seperate log file for each test and upload as artifacts in github action package check.
+    - (To do!) Split :code:`initialize` in server start and initialization taks.
     - (To do!) Detailed usage section in README.
 - Bugfixes:
     - (To do!) Update docstrings.

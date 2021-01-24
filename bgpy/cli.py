@@ -1,8 +1,7 @@
-from .environment import LOG_FILE
 from .server import run
 from .interface import terminate
 from typer import Typer, echo, Abort
-from typing import Union
+from typing import Optional
 from pathlib import Path
 
 try:
@@ -16,7 +15,7 @@ app = Typer(add_completion=False)
 
 @app.command("server")
 def run_server(
-    host: str, port: int, log_file: Union[Path, None] = LOG_FILE
+    host: str, port: int, log_file: Optional[Path] = None
 ) -> None:
     """Run a bgpy server on the given host, which starts listening to the provided
     port.
@@ -34,7 +33,7 @@ def run_server(
 
 @app.command("terminate")
 def terminate_server(
-    host: str, port: int, log_file: Union[Path, None] = LOG_FILE
+    host: str, port: int, log_file: Optional[Path] = None
 ) -> None:
     """Terminate a bgpy server on the given host, which is listening to the
     provided port.
