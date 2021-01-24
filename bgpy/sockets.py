@@ -38,8 +38,8 @@ class ClientSocket(ContextDecorator):
         sock : socket, optional
             An existing stream socket to use or None to create a new one,
             by default None.
-        log_file : Path, optional
-            Path to write the logs, by default LOG_FILE.
+        log_file : Optional[Path], optional
+            Path to the file for writing the logs, by default LOG_FILE.
         verbose : bool, optional
             Print logs also to the screen, by default True.
         """
@@ -61,7 +61,7 @@ class ClientSocket(ContextDecorator):
         self.log.write("ClientSocket closed")
         return False
 
-    def connect(self, host: str, port: int):
+    def connect(self, host: str, port: int) -> None:
         """
         Connect to port on host.
 
@@ -167,8 +167,8 @@ class ClientSocket(ContextDecorator):
 
         Returns
         -------
-        Message
-            A message of type OK or Error
+        Optional[Message]
+            A message of type OK or Error.
         """
         msg_enc = self._buffered_recv()
         if msg_enc is None:
@@ -243,8 +243,8 @@ class ServerSocket(ContextDecorator):
         backlog : int, optional
             Size of the backlog/queue of clients on the server,
             by default BG_BACKLOG
-        log_file : Path, optional
-            Path to write the logs, by default LOG_FILE
+        log_file : Optional[Path], optional
+            Path to the file for writing the logs, by default LOG_FILE.
         verbose : bool, optional
             Print logs also to the screen, by default True
 

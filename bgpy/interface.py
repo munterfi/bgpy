@@ -43,6 +43,8 @@ def initialize(
         Address of the host to run the server on, by default HOST.
     port : int, optional
         Port where the server will listen, by default PORT.
+    log_file : Optional[Path], optional
+        Path to the file for writing the logs, by default LOG_FILE.
 
     Returns
     -------
@@ -87,12 +89,13 @@ def execute(
         command key and a short abbreviation for which the task is checking
         and therefore knows what to do.
     await_response : bool, optional
-        Wait for a second 'custom' response of the server,
-        by default False
+        Wait for a second 'custom' response of the server, by default False.
     host : str, optional
         Address of the host where the server runs, by default HOST.
     port : int, optional
         Port where the server is listening, by default PORT.
+    log_file : Optional[Path], optional
+        Path to the file for writing the logs, by default LOG_FILE.
 
     Returns
     -------
@@ -150,12 +153,13 @@ def terminate(
     exit_args : dict, optional
         Arguments to send to the 'exit_task'.
     await_response : bool, optional
-        Wait for a second 'custom' response of the server,
-        by default False
+        Wait for a second 'custom' response of the server, by default False.
     host : str, optional
         Address of the host where the server runs, by default HOST.
     port : int, optional
         Port where the server is listening, by default PORT.
+    log_file : Optional[Path], optional
+        Path to the file for writing the logs, by default LOG_FILE.
 
     Returns
     -------

@@ -1,6 +1,6 @@
 from datetime import datetime
 from os import getpid
-from typing import Union
+from typing import Optional
 from pathlib import Path
 
 
@@ -10,7 +10,7 @@ class Log:
     """
 
     def __init__(
-        self, log_file: Union[Path, None], tag: str, verbose: bool = False
+        self, log_file: Optional[Path], tag: str, verbose: bool = False
     ) -> None:
         """
         Initializes a object of type 'Log'.
