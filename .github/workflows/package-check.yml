@@ -43,6 +43,12 @@ jobs:
         poetry run pytest --cov=bgpy
         cd docs && poetry run make html && cd ..
 
+    - name: "[Stage] Upload R CMD check artifacts"
+      uses: actions/upload-artifact@v2
+      with:
+        name: check-logs
+        path: $HOME/.bgpy/*.log
+
     - name: Upload coverage reports to Codecov
       run: |
         source "$HOME/.poetry/env"

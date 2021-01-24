@@ -10,6 +10,7 @@ Version 0.1.0.9000
     - CLI command :code:`bgpy version` to check for the version of the package.
     - Restructure environment variables, remove :code:`HOST` and :code:`PORT` from core socket classes.
     - Move log file handling to the interface, create seperate log file for each test.
+    - (To do!) Detailed usage section in README.
 - Bugfixes:
     - (To do!) Update docstrings.
     - (To do!) Render module index and docstrings on readthedocs.
