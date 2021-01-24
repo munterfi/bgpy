@@ -108,7 +108,7 @@ the :code:`terminate` function. The input of the :code:`exit_task` is the
 return value of the last :code:`exec_task` function call (or if never called,
 the return value from the :code:`init_task`). With :code:`respond` a second
 message can be sent to the client, if the client is set to be waiting for a
-second response (:code:`terminate(..., await_response = True`).
+second response (:code:`terminate(..., await_response=True`).
 
 .. code-block:: python
     
@@ -121,8 +121,8 @@ second response (:code:`terminate(..., await_response = True`).
         return None
 
 **Note:** If the client is set to wait for a second response
-(:code:`execute(..., await_response = True` or
-:code:`terminate(..., await_response = True`) it is important to handle this on 
+(:code:`execute(..., await_response=True` or
+:code:`terminate(..., await_response=True`) it is important to handle this on 
 the server side by sending a response to the client using :code:`respond`!
 Otherwise the client may be waiting forever as there is no timeout specified.
 
