@@ -66,8 +66,8 @@ to the provided port. After starting the server, a INIT message with the
 :code:`init_task`, :code:`exec_task()` and :code:`exit_task()` tasks are send
 to the server in order to complete the initialization.
 
-Init task
-_________
+Initialization task
+___________________
 
 Task that runs once during initialization and can be used to set up the
 server. The return value of this function must be a dict, which is then
@@ -79,8 +79,8 @@ passed to the :code:`exec_task` function with every request by a client.
         init_args = {"request_count": 0, "value": 1000}
         return init_args
 
-Exec task
-_________
+Execution task
+______________
 
 Task that is called each time a request is made by a client to the server.
 In this task the message from the :code:`execute` function has to be
@@ -113,7 +113,7 @@ second response (:code:`terminate(..., await_response = True`).
 .. code-block:: python
     
     def exit_task(
-    client_socket: ClientSocket, init_args: dict, exit_args: dict
+        client_socket: ClientSocket, init_args: dict, exit_args: dict
     ) -> None:
         init_args["request_count"] += 1
         init_args["status"] = "Exited."
