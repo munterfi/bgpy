@@ -50,10 +50,9 @@ jobs:
 
     - name: Upload logs
       uses: actions/upload-artifact@v2
-      run: |
       with:
         name: check-logs
-        path: "~/.bgpy/" 
+        path: "~/.bgpy/"
 
     - name: Upload coverage reports to Codecov
       run: |
