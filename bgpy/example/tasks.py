@@ -2,7 +2,7 @@ from ..sockets import ClientSocket
 from ..interface import respond
 
 
-def init_task(client_socket: ClientSocket) -> dict:
+def init_task() -> dict:
     init_args = {"request_count": 0, "value": 1000}
     return init_args
 

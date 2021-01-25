@@ -7,7 +7,7 @@ LOG_FILE = HOME / "comm.log"
 
 # Sockets
 HOST = "127.0.0.1"  # IP adress of the Server, default localhost
-PORT = 50014  # Port used by server
+PORT = 50015  # Port used by server
 STARTUP_TIME = 1  # Time to sleep before sending INIT message to a new server
 BACKLOG_SIZE = 3  # Backlog size of the server socket (client queue)
 

@@ -14,7 +14,7 @@ def initialize(
     host: str = HOST,
     port: int = PORT,
     log_file: Optional[Path] = LOG_FILE,
-) -> dict:
+) -> Optional[dict]:
     """
     Run and intialize a bgpy server on the given host, which starts listening
     to the provided port. After starting the server, a INIT message with the
@@ -48,7 +48,7 @@ def initialize(
 
     Returns
     -------
-    dict
+    Optional[dict]
         Response of the server.
     """
     _ = Popen(
@@ -65,8 +65,11 @@ def initialize(
                 "exit_task": exit_task,
             },
         )
-        res = cs.send(msg)
-        return res.get_args()
+        res = cs.send(msg, await_response=True)
+        if res is not None:
+            return res.get_args()
+        else:
+            return None
 
 
 def execute(
@@ -109,7 +112,11 @@ def execute(
         return res.get_args()
 
 
-def respond(client_socket: ClientSocket, response: dict) -> dict:
+def respond(
+    client_socket: ClientSocket,
+    response: dict,
+    error: bool = False,
+) -> dict:
     """
     Respond to the client
 
@@ -124,13 +131,18 @@ def respond(client_socket: ClientSocket, response: dict) -> dict:
         communication with the client socket on the client.
     response : dict
         Response to send to the client.
+    error : bool
+        Respond with a Message of type ERROR instead of OK, default is False.
 
     Returns
     -------
     dict
-        Response of the client.
+        Response dict of the client.
     """
-    msg = Message(MessageType.OK, args=response)
+    if error:
+        msg = Message(MessageType.ERROR, args=response)
+    else:
+        msg = Message(MessageType.OK, args=response)
     res = client_socket.send(msg)
     return res.get_args()  # type: ignore
 

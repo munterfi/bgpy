@@ -1,11 +1,15 @@
 from .message import MessageType
 from .sockets import ClientSocket, ServerSocket
-from .interface import respond  # NOQA
+from .interface import respond
+from pathlib import Path
+from typing import Optional
 
 
-def run(host, port, log_file):
+def run(host: str, port: int, log_file: Optional[Path]):
     """
-    Run a bgpy server.
+    The bgpy server.
+
+    Start this server vai python using
 
     Parameters
     ----------
@@ -13,6 +17,8 @@ def run(host, port, log_file):
         Address of the host where the server runs.
     port : int, optional
         Port where the server is listening.
+    log_file : Optional[Path], optional
+        Path to the file for writing the logs, by default LOG_FILE.
     """
 
     INIT = False
@@ -35,7 +41,11 @@ def run(host, port, log_file):
                     # Message type: INIT
                     if msg.type is MessageType.INIT:
                         if INIT:
-                            print("Already initialised.")
+                            respond(
+                                cs,
+                                {"message": "Already initialised."},
+                                error=True,
+                            )
                             continue
 
                         # Extract tasks from INIT message
@@ -45,10 +55,17 @@ def run(host, port, log_file):
                         exit_task = tasks["exit_task"]
 
                         # Execute INIT task and setup init_args
-                        init_args = init_task(cs)
+                        init_args = init_task()
 
                         # Set INIT to True to avoid second initialization
                         INIT = True
+
+                        # Confirm initialization
+                        respond(
+                            cs,
+                            {"message": "Initialization successful."},
+                            error=False,
+                        )
                         continue
 
                     # Message type: EXIT
