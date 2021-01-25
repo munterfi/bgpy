@@ -1,6 +1,6 @@
-from .environment import LOG_FILE
-from .server import run
-from .interface import terminate
+from .core.environment import LOG_FILE
+from .server import Server
+from .client import Client
 from typer import Typer, echo, Abort
 from typing import Optional
 from pathlib import Path
@@ -25,8 +25,9 @@ def run_server(
     """
     if str(log_file) == "None":
         log_file = None
+    server = Server(host=host, port=int(port), log_file=log_file)
     try:
-        run(host=host, port=int(port), log_file=log_file)
+        server.run()
     except OSError as e:
         echo(e)
         Abort()
@@ -41,8 +42,9 @@ def terminate_server(
     """
     if str(log_file) == "None":
         log_file = None
+    client = Client(host=host, port=int(port), log_file=log_file)
     try:
-        terminate(host=host, port=int(port), log_file=log_file)
+        client.terminate()
     except OSError as e:
         echo(e)
         Abort()

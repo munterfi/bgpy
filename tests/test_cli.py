@@ -2,7 +2,7 @@
 
 """Tests for `bgpy.cli` module."""
 
-from bgpy.environment import HOME, HOST, PORT, STARTUP_TIME
+from bgpy.core.environment import HOME, HOST, PORT, STARTUP_TIME
 from time import sleep
 from subprocess import Popen
 

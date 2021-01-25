@@ -1,5 +1,5 @@
-from ..sockets import ClientSocket
-from ..interface import respond
+from ..core.sockets import ClientSocket
+from ..server import respond
 
 
 def init_task() -> dict:
