@@ -14,8 +14,9 @@ repository = "https://github.com/munterfinger/bgpy"
 bgpy = "bgpy.cli:main"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.6"
 typer = "^0.3.2"
+importlib-metadata = { version = "^3.4.0", python = "<3.8" }
 
 [tool.poetry.dev-dependencies]
 black = "^20.8b1"
