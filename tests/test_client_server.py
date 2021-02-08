@@ -35,7 +35,7 @@ client.execute({"command": "decrease", "value_change": 100})
 # Terminate and wait for response, receive OK with values
 args = client.terminate(await_response=True)
 
-sleep(STARTUP_TIME)
+#sleep(STARTUP_TIME)
 
 
 def test_request_count():

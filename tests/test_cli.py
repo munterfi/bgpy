@@ -14,7 +14,7 @@ start = Popen(
 )
 
 # Wait to ensure client socket does not miss server socket
-sleep(STARTUP_TIME)
+#sleep(STARTUP_TIME)
 
 # Terminate
 stop = Popen(
@@ -22,7 +22,7 @@ stop = Popen(
 )
 
 # Wait to ensure server socket is shut down, before next test starts
-sleep(STARTUP_TIME)
+#sleep(STARTUP_TIME)
 
 
 def test_cli_success():
