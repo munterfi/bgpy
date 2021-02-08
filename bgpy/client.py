@@ -1,6 +1,7 @@
-from .core.environment import LOG_FILE
+from .core.environment import STARTUP_TIME, LOG_FILE
 from .core.message import Message, MessageType
 from .core.sockets import ClientSocket
+from time import sleep
 from typing import Callable, Optional
 from pathlib import Path
 
@@ -153,4 +154,5 @@ class Client:
             cs.connect(self.host, self.port)
             msg = Message(MessageType.EXIT, args=exit_args)
             res = cs.send(msg, await_response=await_response)
-            return res.get_args()
+        sleep(STARTUP_TIME)
+        return res.get_args()
