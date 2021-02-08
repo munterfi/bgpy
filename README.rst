@@ -112,23 +112,21 @@ Run an example background process on localhost and send requests using client so
 .. code-block:: python
 
     from bgpy import Client, Server
-
-    # Import example tasks, same functions as defined in the section above
     from bgpy.example.tasks import init_task, exec_task, exit_task
 
-    # Create server context
-    server = Server(host=HOST, port=PORT, log_file=LOG_FILE)
+    HOST = "127.0.0.1"
+    PORT = 54321
 
-    # Start server in background
+    # Create server context
+    server = Server(host=HOST, port=PORT)
+
+    # Start server in background from context
     server.run_background()
 
-    # Bind client to context
-    client = Client(host=HOST, port=PORT, log_file=LOG_FILE)
+    # Bind client to server context
+    client = Client(host=HOST, port=PORT)
 
     # Send INIT message from client to server, receive OK
-    client.initialize(init_task, exec_task, exit_task)
-
-    # Send second INIT message from client to server, receive ERROR
     client.initialize(init_task, exec_task, exit_task)
 
     # Execute command 'increase' with value on server, receive OK
