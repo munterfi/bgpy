@@ -2,11 +2,11 @@
 
 """Tests for `bgpy.client` and `bgpy.server` modules."""
 
-from bgpy.core.environment import PORT, HOST, HOME, STARTUP_TIME
+from bgpy.core.environment import PORT, HOST, HOME  #, STARTUP_TIME
 from bgpy.client import Client
 from bgpy.server import Server
 from bgpy.example.tasks import init_task, exec_task, exit_task
-from time import sleep
+# from time import sleep
 
 LOG_FILE = HOME / "test_workflow.log"
 

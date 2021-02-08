@@ -2,8 +2,8 @@
 
 """Tests for `bgpy.cli` module."""
 
-from bgpy.core.environment import HOME, HOST, PORT, STARTUP_TIME
-from time import sleep
+from bgpy.core.environment import HOME, HOST, PORT  #, STARTUP_TIME
+# from time import sleep
 from subprocess import Popen
 
 LOG_FILE = HOME / "test_cli.log"
