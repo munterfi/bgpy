@@ -39,9 +39,15 @@ jobs:
       run: |
         source "$HOME/.poetry/env"
         poetry run flake8 bgpy tests --count --max-complexity=10
-        #poetry run mypy --config-file pyproject.toml .
+        poetry run mypy --config-file pyproject.toml .
         poetry run pytest --cov=bgpy
         cd docs && poetry run make html && cd ..
+
+    - name: Upload logs as artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: check-logs
+        path: "~/.bgpy/"
 
     - name: Upload coverage reports to Codecov
       run: |

@@ -1,40 +1,61 @@
-from .server import run
-from .interface import terminate
+from .core.environment import LOG_FILE
+from .server import Server
+from .client import Client
 from typer import Typer, echo, Abort
+from typing import Optional
+from pathlib import Path
+
+try:
+    from importlib import metadata
+except ImportError:
+    # Running on pre-3.8 Python; use importlib-metadata package
+    import importlib_metadata as metadata  # type: ignore
 
 app = Typer(add_completion=False)
 
 
 @app.command("server")
-def run_server(host: str, port: int):
-    """Run a bgpy server
-
-    Run a bgpy server on the given host, which starts listening to the provided
-    port.
+def run_server(
+    host: str, port: int, log_file: Optional[Path] = LOG_FILE
+) -> None:
+    """Run a bgpy server on the given host, which starts listening to the
+    provided port.
     Note: Before calling 'initialize()' and passing 'init_task()', exec_task()'
-    and 'exit_task()' to the server, it will not respond to requests.
+    and 'exit_task()' to the server, the server will not respond to requests.
     """
-    echo(f"Starting bgpy server on {host}:{port} ...")
+    if str(log_file) == "None":
+        log_file = None
+    server = Server(host=host, port=int(port), log_file=log_file)
     try:
-        run(host=host, port=int(port))
+        server.run()
     except OSError as e:
         echo(e)
         Abort()
 
 
 @app.command("terminate")
-def terminate_server(host: str, port: int):
-    """Terminate a bgpy server
-
-    Terminate a bgpy server on the given host, which is listening to the
+def terminate_server(
+    host: str, port: int, log_file: Optional[Path] = LOG_FILE
+) -> None:
+    """Terminate a bgpy server on the given host, which is listening to the
     provided port.
     """
-    echo(f"Stopping bgpy server on {host}:{port} ...")
+    if str(log_file) == "None":
+        log_file = None
+    client = Client(host=host, port=int(port), log_file=log_file)
     try:
-        terminate(host=host, port=int(port))
+        client.terminate()
     except OSError as e:
         echo(e)
         Abort()
+
+
+@app.command("version")
+def version_info():
+    """Prints the version of the package."""
+    package = "bgpy"
+    version = metadata.version(package)
+    echo(f"{package} {version}")
 
 
 def main():

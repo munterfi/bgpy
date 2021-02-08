@@ -1,5 +1,6 @@
 """Top-level package for bgpy."""
 
-from .interface import initialize, execute, respond, terminate
+from .client import Client
+from .server import Server, respond
 
-__all__ = ["initialize", "execute", "respond", "terminate"]
+__all__ = ["Client", "Server", "respond"]

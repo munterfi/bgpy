@@ -7,6 +7,7 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
+   bgpy.core
    bgpy.example
 
 Submodules
@@ -20,42 +21,10 @@ bgpy.cli module
    :undoc-members:
    :show-inheritance:
 
-bgpy.environment module
------------------------
+bgpy.client module
+------------------
 
-.. automodule:: bgpy.environment
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-bgpy.interface module
----------------------
-
-.. automodule:: bgpy.interface
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-bgpy.log module
----------------
-
-.. automodule:: bgpy.log
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-bgpy.message module
--------------------
-
-.. automodule:: bgpy.message
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-bgpy.serialize module
----------------------
-
-.. automodule:: bgpy.serialize
+.. automodule:: bgpy.client
    :members:
    :undoc-members:
    :show-inheritance:
@@ -64,14 +33,6 @@ bgpy.server module
 ------------------
 
 .. automodule:: bgpy.server
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-bgpy.sockets module
--------------------
-
-.. automodule:: bgpy.sockets
    :members:
    :undoc-members:
    :show-inheritance:

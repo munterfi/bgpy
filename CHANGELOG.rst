@@ -3,6 +3,21 @@ Changelog
 
 This packages uses `semantic versions <https://semver.org/>`_.
 
+Version 0.1.0.9000
+------------------
+
+- Features:
+    - CLI command :code:`bgpy version` to check for the version of the package.
+    - Restructure environment variables, remove :code:`HOST` and :code:`PORT` from core socket classes.
+    - Move log file handling to the interface, create seperate log file for each test and upload as artifacts in github action package check.
+    - Split :code:`interface.py` into a :code:`Server` context class and a :code:`Client` context class.
+    - (To do!) Detailed usage section in README.
+- Bugfixes:
+    - (To do!) Update docstrings.
+    - (To do!) Render module index and docstrings on readthedocs.
+    - Pass mypy type checks.
+    - Run sphinx-apidoc in :code:`check.sh` script to avoid errors in documentation build when changing submodule structure.
+
 Version 0.1.0
 -------------
 
