@@ -111,22 +111,34 @@ Run an example background process on localhost and send requests using client so
 
 .. code-block:: python
 
-    # Import example tasks, same as defined in the section above
+    from bgpy import Client, Server
+
+    # Import example tasks, same functions as defined in the section above
     from bgpy.example.tasks import init_task, exec_task, exit_task
 
-    from bgpy.interface import initialize, execute, terminate
+    # Create server context
+    server = Server(host=HOST, port=PORT, log_file=LOG_FILE)
 
-    # Start background process and initialize
-    initialize(init_task, exec_task, exit_task)
+    # Start server in background
+    server.run_background()
 
-    # Execute command "increase" on server
-    execute({"command": "increase", "value_change": 10})
+    # Bind client to context
+    client = Client(host=HOST, port=PORT, log_file=LOG_FILE)
 
-    # Execute command "decrease" on server
-    execute({"command": "decrease", "value_change": 100})
+    # Send INIT message from client to server, receive OK
+    client.initialize(init_task, exec_task, exit_task)
 
-    # Terminate and wait for second response
-    args = terminate(await_response=True)
+    # Send second INIT message from client to server, receive ERROR
+    client.initialize(init_task, exec_task, exit_task)
+
+    # Execute command 'increase' with value on server, receive OK
+    client.execute({"command": "increase", "value_change": 10})
+
+    # Execute command 'decrease' with value on server, receive OK
+    client.execute({"command": "decrease", "value_change": 100})
+
+    # Terminate and wait for response, receive OK with values
+    args = client.terminate(await_response=True)
 
 License
 -------
