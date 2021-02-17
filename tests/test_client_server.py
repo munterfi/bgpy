@@ -2,15 +2,13 @@
 
 """Tests for `bgpy.client` and `bgpy.server` modules."""
 
-from bgpy.core.environment import PORT, HOST, HOME  # , STARTUP_TIME
+from bgpy.core.environment import PORT, HOST, HOME
 from bgpy.client import Client
 from bgpy.server import Server
 from bgpy.example.tasks import init_task, exec_task, exit_task
 
-# from time import sleep
-
 LOG_FILE = HOME / "test_workflow.log"
-
+PORT = PORT + 2
 
 # Create server context
 server = Server(host=HOST, port=PORT, log_file=LOG_FILE)
@@ -22,22 +20,38 @@ server.run_background()
 client = Client(host=HOST, port=PORT, log_file=LOG_FILE)
 
 # Send INIT message from client to server, receive OK
-client.initialize(init_task, exec_task, exit_task)
+res_init = client.initialize(init_task, exec_task, exit_task)
+
+
+def test_initialize():
+    assert res_init["message"] == "Initialization successful."
+
 
 # Send second INIT message from client to server, receive ERROR
-client.initialize(init_task, exec_task, exit_task)
+res_init_error = client.initialize(init_task, exec_task, exit_task)
+
+
+def test_initialize_error():
+    assert res_init_error["message"] == "Already initialized."
+
 
 # Execute command 'increase' with value on server, receive OK
-client.execute({"command": "increase", "value_change": 10})
+res_exec_1 = client.execute({"command": "increase", "value_change": 10})
+
 
 # Execute command 'decrease' with value on server, receive OK
-client.execute({"command": "decrease", "value_change": 100})
+res_exec_2 = client.execute({"command": "decrease", "value_change": 100})
+
+
+def test_execution():
+    assert res_exec_1["message"] == "Received 'EXEC'"
+    assert res_exec_2["message"] == "Received 'EXEC'"
+
 
 # Terminate and wait for response, receive OK with values
-args = client.terminate(await_response=True)
-
-# sleep(STARTUP_TIME)
+res_exit = client.terminate(await_response=True)
 
 
-def test_request_count():
-    assert isinstance(args, dict)
+def test_terminate():
+    assert isinstance(res_exit, dict)
+    assert res_exit["request_count"] == 3

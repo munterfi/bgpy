@@ -70,7 +70,7 @@ class Server:
                             if INIT:
                                 respond(
                                     cs,
-                                    {"message": "Already initialised."},
+                                    {"message": "Already initialized."},
                                     error=True,
                                 )
                                 continue
