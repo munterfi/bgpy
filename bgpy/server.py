@@ -9,8 +9,8 @@ from typing import Optional
 
 class Server:
     """
-    Server to which reveives INIT, EXEC and EXIT from clients, and responds
-    with messages of type OK or ERROR.
+    Server to which reveives INIT, EXEC and EXIT messages from clients,
+    and responds with messages of type OK or ERROR.
     """
 
     __slots__ = ["host", "port", "log_file"]
@@ -36,6 +36,9 @@ class Server:
         self.host = host
         self.port = port
         self.log_file = log_file
+
+    def __repr__(self) -> str:
+        return f"Server({self.host!r}, {self.port!r}, {self.log_file!r})"
 
     def __str__(self) -> str:
         return (

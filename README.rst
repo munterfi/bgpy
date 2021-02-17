@@ -23,11 +23,24 @@ directions.
 
 Features:
 
-* Start and initialize a server process with a simple Python script. Once this parent script is terminated, the server process continues to run in the background.
-* Send Python objects between the server and client processes (stored in a :code:`dict`) without worrying about serialization, message length, chunksize in the network buffer, and setting up server and client sockets.
-* Due to the socket-based communication between server and client, it is possible to resume the communication from any location, as long as access to the same network is given and the hostname and port on which the server is listening is known.
-* The communication between client and server is operating system independent (not like FIFO pipes for example). Furthermore, on Windows it is possible to communicate between the Windows Subsystem for Linux (WSL) and the Windows host system using bgpy.
-* Optionally start the server on the remote using the command line interface (:code:`bgpy server <host> <port>`), and initialize it from the client (:code:`initialize(host, port, init_task, exec_task, exit_task)`) using Python.
+* Start and initialize a server process with a simple Python script. Once this
+  parent script is terminated, the server process continues to run in the
+  background.
+* Send Python objects between the server and client processes (stored in a
+  :code:`dict`) without worrying about serialization, setting up server and
+  client sockets, message length, and chunksize in the network buffer.
+* Due to the socket-based communication between server and client, it is
+  possible to resume the communication from any location, as long as access to
+  the same network is given and the hostname and port on which the server is
+  listening is known.
+* The communication between client and server is operating system independent
+  (not like FIFO pipes for example). Furthermore, on Windows it is possible to
+  communicate between the Windows Subsystem for Linux (WSL) and the Windows
+  host system using bgpy.
+* Optionally start the server on the remote using the command line interface
+  (:code:`bgpy server <host> <port>`), and initialize it from the local client
+  (:code:`initialize(host, port, init_task, exec_task, exit_task)`) using
+  Python.
 
 Getting started
 ---------------
@@ -41,7 +54,7 @@ Install the stable release of the package from pypi:
 Define tasks
 ^^^^^^^^^^^^
 
-Run and intialize a bgpy server on the given host, which starts listening
+Run and intialize a bgpy server on a host, which starts listening
 to the provided port. After starting the server, a INIT message with the
 :code:`init_task`, :code:`exec_task()` and :code:`exit_task()` tasks are send
 to the server in order to complete the initialization.
@@ -61,10 +74,13 @@ passed to the :code:`exec_task` function with every request by a client.
 * **Execution task**
 
 Task that is called each time a request is made by a client to the server.
-In this task the message from the :code:`execute` function has to be
-interpreted and an action is defined accordingly. Using the function
-:code:`respond`, a second response can be sent to the client after the
-standard confirmation of the receipt of the message.
+In this task the message from the :code:`execute` method of the :code:`Client`
+class is interpreted and an action has to be defined accordingly. The
+input of the :code:`exec_task` is the return value of the last
+:code:`exec_task` function call (or if never called, the return value from the
+:code:`init_task`). Using the function :code:`respond` om the server, a second
+response can be sent to the client after the standard confirmation of the
+receipt of the message by the server.
 
 .. code-block:: python
     
@@ -80,12 +96,13 @@ standard confirmation of the receipt of the message.
 
 * **Exit task**
 
-Task that is executed once if a exit message is sent to the server by
-the :code:`terminate` function. The input of the :code:`exit_task` is the
-return value of the last :code:`exec_task` function call (or if never called,
-the return value from the :code:`init_task`). With :code:`respond` a second
-message can be sent to the client, if the client is set to be waiting for a
-second response (:code:`terminate(..., await_response=True`).
+Task that is executed once if an exit message is sent to the server by
+the :code:`terminate` method of the :code:`Client` class. The input of the
+:code:`exit_task` is the return value of the last :code:`exec_task` function
+call (or if never called, the return value from the :code:`init_task`). With
+:code:`respond` a second message can be sent to the client, if the client is
+set to be waiting for a second response
+(:code:`Client.terminate(..., await_response=True`).
 
 .. code-block:: python
     
@@ -98,16 +115,18 @@ second response (:code:`terminate(..., await_response=True`).
         return None
 
 **Note:** If the client is set to wait for a second response
-(:code:`execute(..., await_response=True` or
-:code:`terminate(..., await_response=True`) it is important to handle this on 
-the server side by sending a response to the client using :code:`respond`.
-Otherwise the client may be waiting forever as there is no timeout specified.
+(:code:`Client.execute(..., await_response=True` or
+:code:`Client.terminate(..., await_response=True`) it is important to handle
+this on the server side by sending a response to the client using
+:code:`respond`. Otherwise the client may be waiting forever as there is no
+timeout specified.
 
 
 Run the server
 ^^^^^^^^^^^^^^
 
-Run an example background process on localhost and send requests using client sockets:
+Run an example background process on localhost and send requests using client
+sockets:
 
 .. code-block:: python
 
@@ -127,18 +146,19 @@ Run an example background process on localhost and send requests using client so
     client = Client(host=HOST, port=PORT)
 
     # Send INIT message from client to server, receive OK
-    client.initialize(init_task, exec_task, exit_task)
+    response = client.initialize(init_task, exec_task, exit_task)
 
     # Execute command 'increase' with value on server, receive OK
-    client.execute({"command": "increase", "value_change": 10})
+    response = client.execute({"command": "increase", "value_change": 10})
 
     # Execute command 'decrease' with value on server, receive OK
-    client.execute({"command": "decrease", "value_change": 100})
+    response = client.execute({"command": "decrease", "value_change": 100})
 
     # Terminate and wait for response, receive OK with values
-    args = client.terminate(await_response=True)
+    response = client.terminate(await_response=True)
 
 License
 -------
 
-This project is licensed under the MIT License - see the LICENSE file for details
+This project is licensed under the MIT License - see the LICENSE file for
+details.

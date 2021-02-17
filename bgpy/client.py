@@ -35,9 +35,12 @@ class Client:
         self.port = port
         self.log_file = log_file
 
+    def __repr__(self) -> str:
+        return f"Client({self.host!r}, {self.port!r}, {self.log_file!r})"
+
     def __str__(self) -> str:
         return (
-            "Client with context for connecting to server at "
+            "Client context for connecting to server at "
             + f"'{self.host}:{self.port}'"
         )
 
@@ -62,13 +65,13 @@ class Client:
             client.
         exec_task : Callable
             Task that is called each time a request is made. Here the message
-            from the 'execute' function has to be interpreted and a task is
-            defined accordingly. Using the function 'respond', a second
-            response can be sent to the client after the standard confirmation
-            of the receipt of the message.
+            from the 'execute' method is interpreted and a task has to be
+            defined accordingly. Using the function 'respond' on the server, a
+            second response can be sent to the client after the standard
+            confirmation of the receipt of the message by the server.
         exit_task : Callable
-            Task that is executed once if a exit singal is sent to the server
-            by the function 'terminate'. The input of this function is the
+            Task that is executed once if an exit singal is sent to the server
+            by the 'terminate' method. The input of this function is the
             return value of the 'exec_task' function (or if bever called, the
             return value from the 'init_task'). With 'respond' a second message
             can be sent to the client.
@@ -102,7 +105,7 @@ class Client:
         """
         Send a command to the server
 
-        Sends an EXEC signal to the server with custom arguments, that are
+        Sends an EXEC signal to the server with custom arguments, which are
         passed to the predefined 'exec_task'.
 
         Parameters
