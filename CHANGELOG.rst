@@ -18,7 +18,8 @@ Version 0.1.0.9000
     - Detailed usage section in README.
 - Bugfixes:
     - Updated docstrings.
-    - (To do!) Render module index and docstrings on readthedocs.
+    - Cleaned environment and removed the need for a directory in the users home (:code:`~/.bgpy`).
+    - Render module index and docstrings on readthedocs.
     - Pass mypy type checks.
     - Run sphinx-apidoc in :code:`check.sh` script to avoid errors in documentation build when changing submodule structure.
 
