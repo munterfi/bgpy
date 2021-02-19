@@ -2,11 +2,12 @@
 
 """Tests for `bgpy.cli` module."""
 
-from bgpy.core.environment import HOME, HOST, PORT, STARTUP_TIME
+from bgpy.core.environment import HOST, PORT, STARTUP_TIME
 from time import sleep
 from subprocess import Popen, check_output
+from pathlib import Path
 
-LOG_FILE = HOME / "test_cli.log"
+LOG_FILE = Path("tests/test_cli.log")
 LOG_LEVEL = "DEBUG"
 PORT = PORT + 1
 
