@@ -1,4 +1,10 @@
-from .environment import LOG_FILE, BACKLOG_SIZE, HEADER_SIZE, BUFFER_SIZE
+from .environment import (
+    LOG_FILE,
+    LOG_LEVEL,
+    BACKLOG_SIZE,
+    HEADER_SIZE,
+    BUFFER_SIZE,
+)
 from .log import Log
 from .message import Message, MessageType
 from .serialize import serialize, deserialize
@@ -24,11 +30,13 @@ class ClientSocket(ContextDecorator):
     Stream socket used on the client and the server to communciate.
     """
 
+    __slots__ = ["sock", "log"]
+
     def __init__(
         self,
         sock: socket = None,
+        log_level: str = LOG_LEVEL,
         log_file: Optional[Path] = LOG_FILE,
-        verbose: bool = True,
     ) -> None:
         """
         Initializes a object of type 'ClientSocket'.
@@ -38,19 +46,20 @@ class ClientSocket(ContextDecorator):
         sock : socket, optional
             An existing stream socket to use or None to create a new one,
             by default None.
+        log_level : str, optional
+            The level to log on (DEBUG, INFO, WARNING, ERROR or CRITICAL),
+            by default LOG_LEVEL.
         log_file : Optional[Path], optional
             Path to the file for writing the logs, by default LOG_FILE.
-        verbose : bool, optional
-            Print logs also to the screen, by default True.
         """
         if sock is None:
-            self.log = Log(log_file, "Client", verbose)
+            self.log = Log(__name__, log_level, "Client", log_file)
             self.sock = socket(AF_INET, SOCK_STREAM)
         else:
-            self.log = Log(log_file, "Server", verbose)
+            self.log = Log(__name__, log_level, "Server", log_file)
             self.sock = sock
             host, port = self.sock.getpeername()
-            self.log.write(f"ClientSocket connected to '{host}:{port}'")
+            self.log.info(f"ClientSocket connected to '{host}:{port}'")
 
     def __enter__(self):
         return self
@@ -58,7 +67,7 @@ class ClientSocket(ContextDecorator):
     def __exit__(self, *exc):
         self.sock.shutdown(SHUT_WR)
         self.sock.close()
-        self.log.write("ClientSocket closed")
+        self.log.info("ClientSocket closed")
         return False
 
     def connect(self, host: str, port: int) -> None:
@@ -81,9 +90,9 @@ class ClientSocket(ContextDecorator):
         try:
             self.sock.connect((host, port))
             host, port = self.sock.getpeername()
-            self.log.write(f"ClientSocket connected to '{host}:{port}'")
+            self.log.info(f"ClientSocket connected to '{host}:{port}'")
         except error as e:
-            self.log.write(str(e))
+            self.log.exception("ClientSocket failed to connected")
             raise error(e)
 
     def send(
@@ -118,7 +127,7 @@ class ClientSocket(ContextDecorator):
             'await_response' is set to True, a custom response from the remote
             client socket.
         """
-        self.log.write(f"Sending '{msg}'")
+        self.log.info(f"Sending '{msg}'")
         args = msg.get_args()
         args["await_response"] = await_response
         msg.set_args(args)
@@ -128,9 +137,9 @@ class ClientSocket(ContextDecorator):
         if res_enc is None:
             return None
         res = deserialize(res_enc)
-        self.log.write(f"Received '{res}'")
+        self.log.info(f"Received '{res}'")
         if await_response:
-            self.log.write("Waiting for response")
+            self.log.info("Waiting for response")
             res_2 = self.recv()
             if res_2 is None:
                 return None
@@ -175,9 +184,9 @@ class ClientSocket(ContextDecorator):
             return None
         msg = deserialize(msg_enc)
         res_msg = f"Received '{msg}'"
-        self.log.write(res_msg)
+        self.log.info(res_msg)
         res = Message(MessageType.OK, args={"message": res_msg})
-        self.log.write(f"Responding '{res}'")
+        self.log.info(f"Responding '{res}'")
         res_enc = serialize(res)
         self._buffered_send(res_enc)
         return msg
@@ -207,10 +216,10 @@ class ClientSocket(ContextDecorator):
                 return None
             if chunk_count == 1:
                 msg_len = int(chunk[:HEADER_SIZE])
-                # self.log.write(f"Detected chunk header, length={msg_len}")
+                self.log.debug(f"Detected chunk header, length={msg_len}")
             msg += chunk
             if len(msg) - HEADER_SIZE == msg_len:
-                # self.log.write(f"Message complete with chunks={chunk_count}")
+                self.log.debug(f"Message complete with chunks={chunk_count}")
                 return msg[HEADER_SIZE:]
 
 
@@ -223,13 +232,15 @@ class ServerSocket(ContextDecorator):
     communication is created, which binds to the client socket on the client.
     """
 
+    __slots__ = ["sock", "log"]
+
     def __init__(
         self,
         host: str,
         port: int,
         backlog: int = BACKLOG_SIZE,
+        log_level: str = LOG_LEVEL,
         log_file: Optional[Path] = LOG_FILE,
-        verbose: bool = True,
     ) -> None:
         """
         Initializes a object of type 'ServerSocket'.
@@ -243,26 +254,28 @@ class ServerSocket(ContextDecorator):
         backlog : int, optional
             Size of the backlog/queue of clients on the server,
             by default BG_BACKLOG
+        log_level : str, optional
+            The level to log on (DEBUG, INFO, WARNING, ERROR or CRITICAL),
+            by default LOG_LEVEL.
         log_file : Optional[Path], optional
             Path to the file for writing the logs, by default LOG_FILE.
-        verbose : bool, optional
-            Print logs also to the screen, by default True
 
         Raises
         ------
         error
-            If the socket connection fails, the error is also written to the
-            logs and raised.
+            If the socket connection fails, the stack trace is also written to
+            the logs and raised.
         """
-        self.log = Log(log_file, "Server", verbose)
-        self.log.clear()
+        self.log = Log(__name__, log_level, "Server", log_file)
         self.sock = socket(AF_INET, SOCK_STREAM)
         self.sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
         try:
             self.sock.bind((host, port))
-            self.log.write(f"ServerSocket listening to '{host}:{port}'")
+            self.log.info(f"ServerSocket listening to '{host}:{port}'")
         except error as e:
-            self.log.write(str(e))
+            self.log.exception(
+                f"ServerSocket failed to bind to '{host}:{port}'"
+            )
             raise error(e)
         self.sock.listen(backlog)
 
@@ -271,7 +284,7 @@ class ServerSocket(ContextDecorator):
 
     def __exit__(self, *exc):
         self.sock.close()
-        self.log.write("ServerSocket closed")
+        self.log.info("ServerSocket closed")
         return False
 
     def accept(self) -> socket:

@@ -1,4 +1,5 @@
-from .core.environment import STARTUP_TIME, LOG_FILE
+from .core.environment import STARTUP_TIME, LOG_LEVEL, LOG_FILE
+from .core.log import Log
 from .core.message import Message, MessageType
 from .core.sockets import ClientSocket, ServerSocket
 from pathlib import Path
@@ -9,16 +10,17 @@ from typing import Optional
 
 class Server:
     """
-    Server to which reveives INIT, EXEC and EXIT from clients, and responds
-    with messages of type OK or ERROR.
+    Server to which reveives INIT, EXEC and EXIT messages from clients,
+    and responds with messages of type OK or ERROR.
     """
 
-    __slots__ = ["host", "port", "log_file"]
+    __slots__ = ["host", "port", "log_level", "log_file", "log"]
 
     def __init__(
         self,
         host: str,
         port: int,
+        log_level: str = LOG_LEVEL,
         log_file: Optional[Path] = LOG_FILE,
     ) -> None:
         """
@@ -30,12 +32,23 @@ class Server:
             Address of the host to run the server on.
         port : int
             Port where the server will listen.
+        log_level : str, optional
+            The level to log on (DEBUG, INFO, WARNING, ERROR or CRITICAL),
+            by default LOG_LEVEL.
         log_file : Optional[Path], optional
             Path to the file for writing the logs, by default LOG_FILE.
         """
         self.host = host
         self.port = port
+        self.log_level = log_level
         self.log_file = log_file
+        self.log = Log(__name__, log_level, "Server", log_file, True)
+
+    def __repr__(self) -> str:
+        return (
+            f"Server({self.host!r}, {self.port!r}, "
+            + f"{self.log_level!r}, {self.log_file!r})"
+        )
 
     def __str__(self) -> str:
         return (
@@ -51,12 +64,21 @@ class Server:
         INIT = False
         EXIT = False
 
-        with ServerSocket(self.host, self.port, log_file=self.log_file) as ss:
+        with ServerSocket(
+            self.host,
+            self.port,
+            log_level=self.log_level,
+            log_file=self.log_file,
+        ) as ss:
 
             while not EXIT:
                 sock = ss.accept()
 
-                with ClientSocket(sock=sock, log_file=self.log_file) as cs:
+                with ClientSocket(
+                    sock=sock,
+                    log_level=self.log_level,
+                    log_file=self.log_file,
+                ) as cs:
 
                     while True:
 
@@ -68,9 +90,10 @@ class Server:
                         # Message type: INIT
                         if msg.type is MessageType.INIT:
                             if INIT:
+                                self.log.warning("Already initialized")
                                 respond(
                                     cs,
-                                    {"message": "Already initialised."},
+                                    {"message": "Already initialized."},
                                     error=True,
                                 )
                                 continue
@@ -82,12 +105,14 @@ class Server:
                             exit_task = tasks["exit_task"]
 
                             # Execute INIT task and setup init_args
+                            self.log.info("Executing 'init_task'")
                             init_args = init_task()
 
                             # Set INIT to True to avoid second initialization
                             INIT = True
 
                             # Confirm initialization
+                            self.log.info("Initialization successful")
                             respond(
                                 cs,
                                 {"message": "Initialization successful."},
@@ -99,6 +124,7 @@ class Server:
                         if msg.type is MessageType.EXIT:
 
                             # Execute exit_task, returns None
+                            self.log.info("Executing 'exit_task'")
                             if INIT:
                                 _ = exit_task(cs, init_args, msg.get_args())
 
@@ -107,13 +133,14 @@ class Server:
                             break
 
                         if not INIT:
-                            print("Initialize first!")
+                            self.log.warning("Not yet initialized")
                             continue
 
                         # Message type: EXEC
                         if msg.type is MessageType.EXEC:
 
                             # Execute exec_task and overwrite init_args
+                            self.log.info("Executing 'exec_task'")
                             init_args = exec_task(
                                 cs, init_args, msg.get_args()
                             )
@@ -133,6 +160,7 @@ class Server:
                 "server",
                 f"{self.host}",
                 f"{self.port}",
+                f"--log-level={str(self.log_level)}",
                 f"--log-file={str(self.log_file)}",
             ]
         )

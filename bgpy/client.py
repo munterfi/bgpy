@@ -1,4 +1,4 @@
-from .core.environment import STARTUP_TIME, LOG_FILE
+from .core.environment import STARTUP_TIME, LOG_LEVEL, LOG_FILE
 from .core.message import Message, MessageType
 from .core.sockets import ClientSocket
 from time import sleep
@@ -11,16 +11,17 @@ class Client:
     Client to send INIT, EXEC and EXIT messages to the the server.
     """
 
-    __slots__ = ["host", "port", "log_file"]
+    __slots__ = ["host", "port", "log_level", "log_file"]
 
     def __init__(
         self,
         host: str,
         port: int,
+        log_level: str = LOG_LEVEL,
         log_file: Optional[Path] = LOG_FILE,
     ) -> None:
         """
-        Initializes a object of type 'Client'.
+        Initializes an object of type 'Client'.
 
         Parameters
         ----------
@@ -28,16 +29,26 @@ class Client:
             Address the host where the server runs on.
         port : int
             Port where the server is listening to.
+        log_level : str, optional
+            The level to log on (DEBUG, INFO, WARNING, ERROR or CRITICAL),
+            by default LOG_LEVEL.
         log_file : Optional[Path], optional
             Path to the file for writing the logs, by default LOG_FILE.
         """
         self.host = host
         self.port = port
+        self.log_level = log_level
         self.log_file = log_file
+
+    def __repr__(self) -> str:
+        return (
+            f"Client({self.host!r}, {self.port!r}, "
+            + f"{self.log_level!r}, {self.log_file!r})"
+        )
 
     def __str__(self) -> str:
         return (
-            "Client with context for connecting to server at "
+            "Client context for connecting to server at "
             + f"'{self.host}:{self.port}'"
         )
 
@@ -62,13 +73,13 @@ class Client:
             client.
         exec_task : Callable
             Task that is called each time a request is made. Here the message
-            from the 'execute' function has to be interpreted and a task is
-            defined accordingly. Using the function 'respond', a second
-            response can be sent to the client after the standard confirmation
-            of the receipt of the message.
+            from the 'execute' method is interpreted and a task has to be
+            defined accordingly. Using the function 'respond' on the server, a
+            second response can be sent to the client after the standard
+            confirmation of the receipt of the message by the server.
         exit_task : Callable
-            Task that is executed once if a exit singal is sent to the server
-            by the function 'terminate'. The input of this function is the
+            Task that is executed once if an exit singal is sent to the server
+            by the 'terminate' method. The input of this function is the
             return value of the 'exec_task' function (or if bever called, the
             return value from the 'init_task'). With 'respond' a second message
             can be sent to the client.
@@ -78,7 +89,9 @@ class Client:
         Optional[dict]
             Response of the server.
         """
-        with ClientSocket(log_file=self.log_file) as cs:
+        with ClientSocket(
+            log_level=self.log_level, log_file=self.log_file
+        ) as cs:
             cs.connect(self.host, self.port)
             msg = Message(
                 MessageType.INIT,
@@ -102,7 +115,7 @@ class Client:
         """
         Send a command to the server
 
-        Sends an EXEC signal to the server with custom arguments, that are
+        Sends an EXEC signal to the server with custom arguments, which are
         passed to the predefined 'exec_task'.
 
         Parameters
@@ -120,7 +133,9 @@ class Client:
         dict
             Response of the server.
         """
-        with ClientSocket(log_file=self.log_file) as cs:
+        with ClientSocket(
+            log_level=self.log_level, log_file=self.log_file
+        ) as cs:
             cs.connect(self.host, self.port)
             msg = Message(MessageType.EXEC, args=exec_args)
             res = cs.send(msg, await_response=await_response)
@@ -150,7 +165,9 @@ class Client:
         dict
             Response of the server.
         """
-        with ClientSocket(log_file=self.log_file) as cs:
+        with ClientSocket(
+            log_level=self.log_level, log_file=self.log_file
+        ) as cs:
             cs.connect(self.host, self.port)
             msg = Message(MessageType.EXIT, args=exit_args)
             res = cs.send(msg, await_response=await_response)

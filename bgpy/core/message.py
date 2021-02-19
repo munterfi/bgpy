@@ -37,6 +37,9 @@ class Message:
         self.type = type_
         self.args = args
 
+    def __repr__(self) -> str:
+        return f"Message({self.type}, {self.args})"
+
     def __str__(self) -> str:
         return self.type.name
 
