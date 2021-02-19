@@ -1,10 +1,10 @@
 Changelog
 =========
 
-This packages uses `semantic versions <https://semver.org/>`_.
+This package uses `semantic versions <https://semver.org/>`_.
 
-Version 0.1.0.9000
-------------------
+Version 0.2.0
+-------------
 
 - Features:
     - CLI command :code:`bgpy version` to check for the version of the package.
@@ -26,7 +26,7 @@ Version 0.1.0.9000
 Version 0.1.0
 -------------
 
-- Initial release of the **bgpy** on pypi.org package; Running local or remote python servers in the background and establish stream socket-based communication with clients. 
+- Initial release of the **bgpy** on pypi.org package; Running local or remote Python servers in the background and establish stream socket-based communication with clients. 
 - Development setup:
     - :code:`poetry`: Managing dependencies and package build env.
     - :code:`pytest`: Framework for testing.
@@ -37,5 +37,5 @@ Version 0.1.0
     - example: Example :code:`init_task`, :code:`exec_task` and :code:`exit_task` for testing.
     - cli: :code:`bgpy server <host> <port>` to run a server and :code:`bgpy terminate <host> <port>` to send exit message to a server.
 - Scripts:
-    - :code:`install.sh`: Builds the package and installs it to the global python version.
+    - :code:`install.sh`: Builds the package and installs it to the global Python version.
     - :code:`check.sh`: Automates checks and documentation build.
