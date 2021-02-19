@@ -38,13 +38,19 @@ class Log:
         file : Path, optional
             Path to the log file, by default None.
         """
+
+        self.name = name
+        self.level = level
+        self.tag = tag
+        self.file = file
+
         # Logger config
         numeric_level = self._level_from_str(level)
         level = level.upper()
         formatter = Formatter(LOG_FORMAT, LOG_DATETIME_FORMAT)
         logger = getLogger(name)
         if logger.hasHandlers():
-            logger.debug("Clear handlers.")
+            logger.debug(self._format("Clear handlers"))
             logger.handlers.clear()
         logger.setLevel(DEBUG)
 
@@ -62,16 +68,14 @@ class Log:
             file_handler.setFormatter(formatter)
             file_handler.setLevel(numeric_level)
             logger.addHandler(file_handler)
-            logger.debug(f"Set file handler level to '{level}'.")
+            logger.debug(self._format(f"Set file handler level to '{level}'"))
 
         # Complete initialization
-        logger.debug(f"Set stream handler level to '{level}' and STDOUT.")
-        self.name = name
-        self.file = file
-        self.level = level
-        self.tag = tag
+        logger.debug(
+            self._format(f"Set stream handler level to '{level}' and 'STDOUT'")
+        )
         self.logger = logger
-        self.logger.debug("Logger initialized.")
+        self.logger.debug(self._format("Logger initialized"))
 
     def __repr__(self) -> str:
         return (

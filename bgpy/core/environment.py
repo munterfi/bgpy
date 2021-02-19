@@ -17,5 +17,5 @@ BUFFER_SIZE = 1024 * 2  # Size of the vjunks in the network buffer
 # Logs
 LOG_FILE = None
 LOG_LEVEL = "INFO"
-LOG_FORMAT = "[%(asctime)s - %(levelname)s] %(message)s (%(name)s)"
+LOG_FORMAT = ("[%(asctime)s %(process)d %(levelname)s] %(message)s (%(name)s)")
 LOG_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"

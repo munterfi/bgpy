@@ -8,16 +8,17 @@ from bgpy.server import Server
 from bgpy.example.tasks import init_task, exec_task, exit_task
 
 LOG_FILE = HOME / "test_workflow.log"
+LOG_LEVEL = "DEBUG"
 PORT = PORT + 2
 
 # Create server context
-server = Server(host=HOST, port=PORT, log_file=LOG_FILE)
+server = Server(host=HOST, port=PORT, log_level=LOG_LEVEL, log_file=LOG_FILE)
 
 # Start server in background
 server.run_background()
 
 # Bind client to context
-client = Client(host=HOST, port=PORT, log_file=LOG_FILE)
+client = Client(host=HOST, port=PORT, log_level=LOG_LEVEL, log_file=LOG_FILE)
 
 # Send INIT message from client to server, receive OK
 res_init = client.initialize(init_task, exec_task, exit_task)

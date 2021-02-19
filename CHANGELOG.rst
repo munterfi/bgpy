@@ -12,6 +12,8 @@ Version 0.1.0.9000
     - Move log file handling to the interface, create seperate log file for each test and upload as artifacts in github action package check.
     - Split :code:`interface.py` into a :code:`Server` context class and a :code:`Client` context class.
     - Added :code:`__repr__` methods to :code:`Client`, :code:`Server` and :code:`Message` classes.
+    - Define :code:`__slots__` for all classes.
+    - Use :code:`logging` package from the standard library to perform logging tasks.
     - Detailed usage section in README.
 - Bugfixes:
     - (To do!) Update docstrings.

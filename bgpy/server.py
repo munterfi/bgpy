@@ -88,6 +88,7 @@ class Server:
                         # Message type: INIT
                         if msg.type is MessageType.INIT:
                             if INIT:
+                                cs.log.warning("Already initialized")
                                 respond(
                                     cs,
                                     {"message": "Already initialized."},
@@ -108,6 +109,7 @@ class Server:
                             INIT = True
 
                             # Confirm initialization
+                            cs.log.info("Initialization successful")
                             respond(
                                 cs,
                                 {"message": "Initialization successful."},

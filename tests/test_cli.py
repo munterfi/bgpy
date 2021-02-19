@@ -6,11 +6,19 @@ from bgpy.core.environment import HOME, HOST, PORT
 from subprocess import Popen, check_output
 
 LOG_FILE = HOME / "test_cli.log"
+LOG_LEVEL = "DEBUG"
 PORT = PORT + 1
 
 # Start background server
 start = Popen(
-    ["bgpy", "server", f"{HOST}", f"{PORT}", f"--log-file={LOG_FILE}"]
+    [
+        "bgpy",
+        "server",
+        f"{HOST}",
+        f"{PORT}",
+        f"--log-file={LOG_LEVEL}",
+        f"--log-file={LOG_FILE}",
+    ]
 )
 
 
@@ -20,7 +28,14 @@ def test_cli_server():
 
 # Terminate
 stop = Popen(
-    ["bgpy", "terminate", f"{HOST}", f"{PORT}", f"--log-file={LOG_FILE}"]
+    [
+        "bgpy",
+        "terminate",
+        f"{HOST}",
+        f"{PORT}",
+        f"--log-file={LOG_LEVEL}",
+        f"--log-file={LOG_FILE}",
+    ]
 )
 
 
