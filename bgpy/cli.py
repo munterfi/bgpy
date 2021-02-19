@@ -1,27 +1,34 @@
 from .core.environment import LOG_LEVEL, LOG_FILE
 from .server import Server
 from .client import Client
-from typer import Typer, echo, Abort
+from typer import Typer, echo, Abort, Argument
 from typing import Optional
 from pathlib import Path
 
 try:
-    from importlib import metadata
+    from importlib.metadata import version as get_version
 except ImportError:
-    # Running on pre-3.8 Python; use importlib-metadata package
-    import importlib_metadata as metadata  # type: ignore
+    from importlib_metadata import version as get_version  # type: ignore
 
 app = Typer(add_completion=False)
 
 
 @app.command("server")
 def run_server(
-    host: str,
-    port: int,
-    log_level: str = LOG_LEVEL,
-    log_file: Optional[Path] = LOG_FILE,
+    host: str = Argument(..., help="Host address to run the server on"),
+    port: int = Argument(..., help="Port where the server should listen to"),
+    log_level: str = Argument(
+        LOG_LEVEL,
+        help="Minimum level of the logs (DEBUG, INFO, WARNING, ERROR, ...)",
+    ),
+    log_file: Optional[Path] = Argument(
+        LOG_FILE, help="Optional path to a log file"
+    ),
 ) -> None:
-    """Run a bgpy server on the given host, which starts listening to the
+    """
+    Start a bgpy server.
+
+    Run a bgpy server on the given host, which starts listening to the
     provided port.
     Note: Before calling the 'initialize()' method of the 'Client' class and
     passing 'init_task()', exec_task()' and 'exit_task()' to the server, the
@@ -41,12 +48,20 @@ def run_server(
 
 @app.command("terminate")
 def terminate_server(
-    host: str,
-    port: int,
-    log_level: str = LOG_LEVEL,
-    log_file: Optional[Path] = LOG_FILE,
+    host: str = Argument(..., help="Host address of the server"),
+    port: int = Argument(..., help="Port where the server is listening"),
+    log_level: str = Argument(
+        LOG_LEVEL,
+        help="Minimum level of the logs (DEBUG, INFO, WARNING, ERROR, ...)",
+    ),
+    log_file: Optional[Path] = Argument(
+        LOG_FILE, help="Optional path to a log file"
+    ),
 ) -> None:
-    """Terminate a bgpy server on the given host, which is listening to the
+    """
+    Terminate a bgpy server.
+
+    Terminate a bgpy server on the given host, which is listening to the
     provided port.
     """
     if str(log_file) == "None":
@@ -63,9 +78,13 @@ def terminate_server(
 
 @app.command("version")
 def version_info():
-    """Version information of the package."""
+    """
+    Version information.
+
+    Prints the version information of the package.
+    """
     package = "bgpy"
-    version = metadata.version(package)
+    version = get_version(package)
     echo(f"{package} {version}")
 
 
