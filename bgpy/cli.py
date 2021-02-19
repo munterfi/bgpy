@@ -1,7 +1,6 @@
-from .core.environment import LOG_LEVEL, LOG_FILE
 from .server import Server
 from .client import Client
-from typer import Typer, echo, Abort, Argument
+from typer import Typer, echo, Abort, Argument, Option
 from typing import Optional
 from pathlib import Path
 
@@ -17,12 +16,14 @@ app = Typer(add_completion=False)
 def run_server(
     host: str = Argument(..., help="Host address to run the server on"),
     port: int = Argument(..., help="Port where the server should listen to"),
-    log_level: str = Argument(
-        LOG_LEVEL,
+    log_level: str = Option(
+        "INFO",
+        "--log-level",
+        "-l",
         help="Minimum level of the logs (DEBUG, INFO, WARNING, ERROR, ...)",
     ),
-    log_file: Optional[Path] = Argument(
-        LOG_FILE, help="Optional path to a log file"
+    log_file: Optional[Path] = Option(
+        None, "--log-file", "-f", help="Path to a log file"
     ),
 ) -> None:
     """
@@ -50,12 +51,14 @@ def run_server(
 def terminate_server(
     host: str = Argument(..., help="Host address of the server"),
     port: int = Argument(..., help="Port where the server is listening"),
-    log_level: str = Argument(
-        LOG_LEVEL,
+    log_level: str = Option(
+        "INFO",
+        "--log-level",
+        "-l",
         help="Minimum level of the logs (DEBUG, INFO, WARNING, ERROR, ...)",
     ),
-    log_file: Optional[Path] = Argument(
-        LOG_FILE, help="Optional path to a log file"
+    log_file: Optional[Path] = Option(
+        None, "--log-file", "-f", help="Path to a log file"
     ),
 ) -> None:
     """
