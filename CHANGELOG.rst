@@ -13,7 +13,7 @@ Version 0.1.0.9000
     - Split :code:`interface.py` into a :code:`Server` context class and a :code:`Client` context class.
     - Added :code:`__repr__` methods to :code:`Client`, :code:`Server` and :code:`Message` classes.
     - Define :code:`__slots__` for all classes.
-    - Use :code:`logging` package from the standard library to perform logging tasks.
+    - Use :code:`logging` package from the standard library to perform logging tasks. Split logs at level INFO into STDOUT and STDERR on the stream handler for the console.
     - Detailed usage section in README.
 - Bugfixes:
     - (To do!) Update docstrings.

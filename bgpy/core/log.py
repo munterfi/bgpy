@@ -2,9 +2,17 @@ from .environment import (
     LOG_FORMAT,
     LOG_DATETIME_FORMAT,
 )
-from logging import getLogger, Formatter, StreamHandler, getLevelName, DEBUG
+from logging import (
+    getLogger,
+    Formatter,
+    StreamHandler,
+    getLevelName,
+    DEBUG,
+    INFO,
+    WARNING
+)
 from logging.handlers import RotatingFileHandler
-from sys import stdout
+from sys import stdout, stderr
 from typing import Optional
 from pathlib import Path
 
@@ -52,13 +60,18 @@ class Log:
         if logger.hasHandlers():
             logger.debug(self._format("Clear handlers"))
             logger.handlers.clear()
-        logger.setLevel(DEBUG)
+        logger.setLevel(numeric_level)
 
         # Stream handler
-        stream_handler = StreamHandler(stdout)
-        stream_handler.setFormatter(formatter)
-        stream_handler.setLevel(numeric_level)
-        logger.addHandler(stream_handler)
+        stream_handler_stdout = StreamHandler(stdout)
+        stream_handler_stdout.setFormatter(formatter)
+        stream_handler_stdout.setLevel(DEBUG)
+        stream_handler_stdout.addFilter(lambda record: record.levelno <= INFO)
+        stream_handler_stderr = StreamHandler(stderr)
+        stream_handler_stderr.setFormatter(formatter)
+        stream_handler_stderr.setLevel(WARNING)
+        logger.addHandler(stream_handler_stdout)
+        logger.addHandler(stream_handler_stderr)
 
         # File handler
         if file is not None:
@@ -66,7 +79,7 @@ class Log:
                 Path(file), maxBytes=512, backupCount=0
             )
             file_handler.setFormatter(formatter)
-            file_handler.setLevel(numeric_level)
+            file_handler.setLevel(DEBUG)
             logger.addHandler(file_handler)
             logger.debug(self._format(f"Set file handler level to '{level}'"))
 
