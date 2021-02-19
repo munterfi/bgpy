@@ -133,7 +133,9 @@ class Client:
         dict
             Response of the server.
         """
-        with ClientSocket(log_file=self.log_file) as cs:
+        with ClientSocket(
+            log_level=self.log_level, log_file=self.log_file
+        ) as cs:
             cs.connect(self.host, self.port)
             msg = Message(MessageType.EXEC, args=exec_args)
             res = cs.send(msg, await_response=await_response)
@@ -163,7 +165,9 @@ class Client:
         dict
             Response of the server.
         """
-        with ClientSocket(log_file=self.log_file) as cs:
+        with ClientSocket(
+            log_level=self.log_level, log_file=self.log_file
+        ) as cs:
             cs.connect(self.host, self.port)
             msg = Message(MessageType.EXIT, args=exit_args)
             res = cs.send(msg, await_response=await_response)
