@@ -20,7 +20,7 @@ class Client:
         log_file: Optional[Path] = LOG_FILE,
     ) -> None:
         """
-        Initializes a object of type 'Client'.
+        Initializes an object of type 'Client'.
 
         Parameters
         ----------
