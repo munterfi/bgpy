@@ -2,7 +2,8 @@
 
 """Tests for `bgpy.cli` module."""
 
-from bgpy.core.environment import HOME, HOST, PORT
+from bgpy.core.environment import HOME, HOST, PORT, STARTUP_TIME
+from time import sleep
 from subprocess import Popen, check_output
 
 LOG_FILE = HOME / "test_cli.log"
@@ -20,6 +21,9 @@ start = Popen(
         f"--log-file={LOG_FILE}",
     ]
 )
+
+# Wait for the server to startup
+sleep(STARTUP_TIME)
 
 
 def test_cli_server():

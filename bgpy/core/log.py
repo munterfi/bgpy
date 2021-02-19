@@ -9,7 +9,7 @@ from logging import (
     getLevelName,
     DEBUG,
     INFO,
-    WARNING
+    WARNING,
 )
 from logging.handlers import RotatingFileHandler
 from sys import stdout, stderr
@@ -31,6 +31,7 @@ class Log:
         level: str = "INFO",
         tag: Optional[str] = None,
         file: Optional[Path] = None,
+        clear: bool = False,
     ) -> None:
         """
         Initializes an object of type 'Log'.
@@ -45,12 +46,18 @@ class Log:
             Tag of the logging object (e.g. local or remote), by default None.
         file : Path, optional
             Path to the log file, by default None.
+        clear : bool, optional
+            Clear the provided log file, by default False.
         """
 
         self.name = name
         self.level = level
         self.tag = tag
         self.file = file
+
+        # Clear log file if exists
+        if clear:
+            self.clear_log_file()
 
         # Logger config
         numeric_level = self._level_from_str(level)
@@ -81,12 +88,15 @@ class Log:
             file_handler.setFormatter(formatter)
             file_handler.setLevel(DEBUG)
             logger.addHandler(file_handler)
-            logger.debug(self._format(f"Set file handler level to '{level}'"))
+            logger.debug(
+                self._format(
+                    f"Set file handler to '{file}'"
+                )
+            )
 
         # Complete initialization
-        logger.debug(
-            self._format(f"Set stream handler level to '{level}' and 'STDOUT'")
-        )
+        logger.debug(self._format("Set stream handler to 'STDOUT/STDERR'"))
+        logger.debug(self._format(f"Set log level to '{level}'"))
         self.logger = logger
         self.logger.debug(self._format("Logger initialized"))
 

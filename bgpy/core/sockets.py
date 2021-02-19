@@ -267,7 +267,6 @@ class ServerSocket(ContextDecorator):
             the logs and raised.
         """
         self.log = Log(__name__, log_level, "Server", log_file)
-        self.log.clear_log_file()
         self.sock = socket(AF_INET, SOCK_STREAM)
         self.sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
         try:

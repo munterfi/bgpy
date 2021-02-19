@@ -42,7 +42,7 @@ class Server:
         self.port = port
         self.log_level = log_level
         self.log_file = log_file
-        self.log = Log(__name__, log_level, "Server", log_file)
+        self.log = Log(__name__, log_level, "Server", log_file, True)
 
     def __repr__(self) -> str:
         return (
