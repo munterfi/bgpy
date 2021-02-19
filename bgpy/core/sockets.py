@@ -30,6 +30,8 @@ class ClientSocket(ContextDecorator):
     Stream socket used on the client and the server to communciate.
     """
 
+    __slots__ = ["sock", "log"]
+
     def __init__(
         self,
         sock: socket = None,
@@ -230,6 +232,8 @@ class ServerSocket(ContextDecorator):
     communication is created, which binds to the client socket on the client.
     """
 
+    __slots__ = ["sock", "log"]
+
     def __init__(
         self,
         host: str,
@@ -271,7 +275,7 @@ class ServerSocket(ContextDecorator):
             self.log.info(f"ServerSocket listening to '{host}:{port}'")
         except error as e:
             self.log.exception(
-                "ServerSocket failed to bind to '{host}:{port}'"
+                f"ServerSocket failed to bind to '{host}:{port}'"
             )
             raise error(e)
         self.sock.listen(backlog)
