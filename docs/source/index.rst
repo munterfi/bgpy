@@ -6,9 +6,9 @@
 bgpy |release|
 ==============
 
-Running local or remote python servers in the background using :code:`Popen` from the
-subprocess module and establish stream socket-based communication with clients
-in both directions.
+Running local or remote Python servers in the background using the subprocess
+module and establish stream socket-based communication with clients in both
+directions.
 
 .. toctree::
    :maxdepth: 2
