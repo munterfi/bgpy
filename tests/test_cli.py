@@ -16,7 +16,7 @@ start = Popen(
         "server",
         f"{HOST}",
         f"{PORT}",
-        f"--log-file={LOG_LEVEL}",
+        f"--log-level={LOG_LEVEL}",
         f"--log-file={LOG_FILE}",
     ]
 )
@@ -33,7 +33,7 @@ stop = Popen(
         "terminate",
         f"{HOST}",
         f"{PORT}",
-        f"--log-file={LOG_LEVEL}",
+        f"--log-level={LOG_LEVEL}",
         f"--log-file={LOG_FILE}",
     ]
 )
