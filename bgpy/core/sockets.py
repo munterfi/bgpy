@@ -1,6 +1,4 @@
 from .environment import (
-    LOG_FILE,
-    LOG_LEVEL,
     BACKLOG_SIZE,
     HEADER_SIZE,
     BUFFER_SIZE,
@@ -35,8 +33,8 @@ class ClientSocket(ContextDecorator):
     def __init__(
         self,
         sock: socket = None,
-        log_level: str = LOG_LEVEL,
-        log_file: Optional[Path] = LOG_FILE,
+        log_level: str = "WARNING",
+        log_file: Optional[Path] = None,
     ) -> None:
         """
         Initializes a object of type 'ClientSocket'.
@@ -48,9 +46,9 @@ class ClientSocket(ContextDecorator):
             by default None.
         log_level : str, optional
             The level to log on (DEBUG, INFO, WARNING, ERROR or CRITICAL),
-            by default LOG_LEVEL.
+            by default WARNING.
         log_file : Optional[Path], optional
-            Path to the file for writing the logs, by default LOG_FILE.
+            Path to the file for writing the logs, by default None.
         """
         if sock is None:
             self.log = Log(__name__, log_level, "Client", log_file)
@@ -239,8 +237,8 @@ class ServerSocket(ContextDecorator):
         host: str,
         port: int,
         backlog: int = BACKLOG_SIZE,
-        log_level: str = LOG_LEVEL,
-        log_file: Optional[Path] = LOG_FILE,
+        log_level: str = "WARNING",
+        log_file: Optional[Path] = None,
     ) -> None:
         """
         Initializes a object of type 'ServerSocket'.
@@ -256,9 +254,9 @@ class ServerSocket(ContextDecorator):
             by default BG_BACKLOG
         log_level : str, optional
             The level to log on (DEBUG, INFO, WARNING, ERROR or CRITICAL),
-            by default LOG_LEVEL.
+            by default WARNING.
         log_file : Optional[Path], optional
-            Path to the file for writing the logs, by default LOG_FILE.
+            Path to the file for writing the logs, by default None.
 
         Raises
         ------

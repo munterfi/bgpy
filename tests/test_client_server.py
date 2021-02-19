@@ -2,12 +2,13 @@
 
 """Tests for `bgpy.client` and `bgpy.server` modules."""
 
-from bgpy.core.environment import PORT, HOST, HOME
+from bgpy.core.environment import PORT, HOST
 from bgpy.client import Client
 from bgpy.server import Server
 from bgpy.example.tasks import init_task, exec_task, exit_task
+from pathlib import Path
 
-LOG_FILE = HOME / "test_workflow.log"
+LOG_FILE = Path("tests/test_client_server.log")
 LOG_LEVEL = "DEBUG"
 PORT = PORT + 2
 

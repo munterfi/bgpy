@@ -1,4 +1,4 @@
-from .core.environment import STARTUP_TIME, LOG_LEVEL, LOG_FILE
+from .core.environment import STARTUP_TIME, LOG_LEVEL
 from .core.message import Message, MessageType
 from .core.sockets import ClientSocket
 from time import sleep
@@ -18,7 +18,7 @@ class Client:
         host: str,
         port: int,
         log_level: str = LOG_LEVEL,
-        log_file: Optional[Path] = LOG_FILE,
+        log_file: Optional[Path] = None,
     ) -> None:
         """
         Initializes an object of type 'Client'.
@@ -33,7 +33,7 @@ class Client:
             The level to log on (DEBUG, INFO, WARNING, ERROR or CRITICAL),
             by default LOG_LEVEL.
         log_file : Optional[Path], optional
-            Path to the file for writing the logs, by default LOG_FILE.
+            Path to the file for writing the logs, by default None.
         """
         self.host = host
         self.port = port
