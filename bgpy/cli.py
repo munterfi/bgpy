@@ -18,13 +18,14 @@ app = Typer(add_completion=False)
 def run_server(
     host: str,
     port: int,
-    log_level: Optional[str] = LOG_LEVEL,
+    log_level: str = LOG_LEVEL,
     log_file: Optional[Path] = LOG_FILE,
 ) -> None:
     """Run a bgpy server on the given host, which starts listening to the
     provided port.
-    Note: Before calling 'initialize()' and passing 'init_task()', exec_task()'
-    and 'exit_task()' to the server, the server will not respond to requests.
+    Note: Before calling the 'initialize()' method of the 'Client' class and
+    passing 'init_task()', exec_task()' and 'exit_task()' to the server, the
+    server will not respond to requests.
     """
     if str(log_file) == "None":
         log_file = None

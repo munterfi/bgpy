@@ -1,4 +1,5 @@
 from .core.environment import STARTUP_TIME, LOG_LEVEL, LOG_FILE
+from .core.log import Log
 from .core.message import Message, MessageType
 from .core.sockets import ClientSocket, ServerSocket
 from pathlib import Path
@@ -13,13 +14,13 @@ class Server:
     and responds with messages of type OK or ERROR.
     """
 
-    __slots__ = ["host", "port", "log_level", "log_file"]
+    __slots__ = ["host", "port", "log_level", "log_file", "log"]
 
     def __init__(
         self,
         host: str,
         port: int,
-        log_level: Optional[str] = LOG_LEVEL,
+        log_level: str = LOG_LEVEL,
         log_file: Optional[Path] = LOG_FILE,
     ) -> None:
         """
@@ -31,7 +32,7 @@ class Server:
             Address of the host to run the server on.
         port : int
             Port where the server will listen.
-        log_level : Optional[str], optional
+        log_level : str, optional
             The level to log on (DEBUG, INFO, WARNING, ERROR or CRITICAL),
             by default LOG_LEVEL.
         log_file : Optional[Path], optional
@@ -41,6 +42,7 @@ class Server:
         self.port = port
         self.log_level = log_level
         self.log_file = log_file
+        self.log = Log(__name__, log_level, "Server", log_file)
 
     def __repr__(self) -> str:
         return (
@@ -88,7 +90,7 @@ class Server:
                         # Message type: INIT
                         if msg.type is MessageType.INIT:
                             if INIT:
-                                cs.log.warning("Already initialized")
+                                self.log.warning("Already initialized")
                                 respond(
                                     cs,
                                     {"message": "Already initialized."},
@@ -103,13 +105,14 @@ class Server:
                             exit_task = tasks["exit_task"]
 
                             # Execute INIT task and setup init_args
+                            self.log.info("Executing 'init_task'")
                             init_args = init_task()
 
                             # Set INIT to True to avoid second initialization
                             INIT = True
 
                             # Confirm initialization
-                            cs.log.info("Initialization successful")
+                            self.log.info("Initialization successful")
                             respond(
                                 cs,
                                 {"message": "Initialization successful."},
@@ -121,6 +124,7 @@ class Server:
                         if msg.type is MessageType.EXIT:
 
                             # Execute exit_task, returns None
+                            self.log.info("Executing 'exit_task'")
                             if INIT:
                                 _ = exit_task(cs, init_args, msg.get_args())
 
@@ -129,13 +133,14 @@ class Server:
                             break
 
                         if not INIT:
-                            print("Initialize first!")
+                            self.log.warning("Not yet initialized")
                             continue
 
                         # Message type: EXEC
                         if msg.type is MessageType.EXEC:
 
                             # Execute exec_task and overwrite init_args
+                            self.log.info("Executing 'exec_task'")
                             init_args = exec_task(
                                 cs, init_args, msg.get_args()
                             )
