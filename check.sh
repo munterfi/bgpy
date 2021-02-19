@@ -21,4 +21,5 @@ echo -e '\n*** flake8: Code linting ***'
 poetry run flake8 . --count --exit-zero --max-complexity=10 --statistics
 
 echo -e '\n*** Building documentation ***'
-cd docs && poetry run make html && cd ..
+cd docs && poetry run sphinx-apidoc --force -o source/ ../bgpy
+poetry run make html && cd ..
