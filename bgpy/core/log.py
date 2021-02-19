@@ -1,59 +1,169 @@
-from datetime import datetime
-from os import getpid
+from .environment import (
+    LOG_FORMAT,
+    LOG_DATETIME_FORMAT,
+)
+from logging import getLogger, Formatter, StreamHandler, getLevelName, DEBUG
+from logging.handlers import RotatingFileHandler
+from sys import stdout
 from typing import Optional
 from pathlib import Path
 
 
 class Log:
     """
-    Logger class, binds to a log file and writes logs with timestamp and PID.
+    Logger class, optionally binds to a log file and writes logs with timestamp
+    and PID.
     """
 
+    __slots__ = ["name", "level", "tag", "file", "logger"]
+
     def __init__(
-        self, log_file: Optional[Path], tag: str, verbose: bool = False
+        self,
+        name,
+        level: str = "INFO",
+        tag: Optional[str] = None,
+        file: Optional[Path] = None,
     ) -> None:
         """
-        Initializes a object of type 'Log'.
+        Initializes an object of type 'Log'.
 
         Parameters
         ----------
-        log_file : Path
-            Path to the log file.
-        tag : str
-            tag of the logging object (e.g. local or remote).
-        verbose : bool, optional
-            Print logs also to the screen, by default True
+        name : str
+            The name of the logger, usually '__name__' is best praxis.
+        level : str
+            The level to log on (DEBUG, INFO, WARNING, ERROR or CRITICAL).
+        tag : str, optional
+            Tag of the logging object (e.g. local or remote), by default None.
+        file : Path, optional
+            Path to the log file, by default None.
         """
-        self.log_file = log_file
-        self.tag = tag
-        self.verbose = verbose
+        # Logger config
+        numeric_level = self._level_from_str(level)
+        level = level.upper()
+        formatter = Formatter(LOG_FORMAT, LOG_DATETIME_FORMAT)
+        logger = getLogger(name)
+        if logger.hasHandlers():
+            logger.debug("Clear handlers.")
+            logger.handlers.clear()
+        logger.setLevel(DEBUG)
 
-    def clear(self) -> None:
+        # Stream handler
+        stream_handler = StreamHandler(stdout)
+        stream_handler.setFormatter(formatter)
+        stream_handler.setLevel(numeric_level)
+        logger.addHandler(stream_handler)
+
+        # File handler
+        if file is not None:
+            file_handler = RotatingFileHandler(
+                Path(file), maxBytes=512, backupCount=0
+            )
+            file_handler.setFormatter(formatter)
+            file_handler.setLevel(numeric_level)
+            logger.addHandler(file_handler)
+            logger.debug(f"Set file handler level to '{level}'.")
+
+        # Complete initialization
+        logger.debug(f"Set stream handler level to '{level}' and STDOUT.")
+        self.name = name
+        self.file = file
+        self.level = level
+        self.tag = tag
+        self.logger = logger
+        self.logger.debug("Logger initialized.")
+
+    def __repr__(self) -> str:
+        return (
+            f"Log({self.name!r}, {self.level!r}, "
+            + f"{self.tag!r}, {self.file!r})"
+        )
+
+    def __str__(self) -> str:
+        return f"Logger {self.name!r} with level {self.level!r}"
+
+    def clear_log_file(self) -> None:
         """
         Clears the log file.
         """
-        if self.log_file is not None:
-            open(self.log_file, "w").close()
+        if self.file is not None:
+            open(self.file, "w").close()
 
-    def write(self, text: str) -> None:
+    def debug(self, msg: str) -> None:
         """
-        Writes text to log file.
+        Log a message with level "DEBUG"
 
         Parameters
         ----------
-        text : str
-            Log entry text to write.
+        msg : str
+            Message to log.
         """
-        formated = self._format(text)
-        self._print(formated)
-        if self.log_file is not None:
-            with open(self.log_file, "a") as f:
-                f.write(f"{formated}\n")
+        self.logger.debug(self._format(msg))
 
-    def _print(self, message: str) -> None:
-        if self.verbose:
-            print(message)
+    def info(self, msg: str) -> None:
+        """
+        Log a message with level "INFO"
 
-    def _format(self, text: str) -> str:
-        dt = datetime.now().replace(microsecond=0)
-        return f"{dt} - {self.tag} {getpid()}: {text}"
+        Parameters
+        ----------
+        msg : str
+            Message to log.
+        """
+        self.logger.info(self._format(msg))
+
+    def warning(self, msg: str) -> None:
+        """
+        Log a message with level "WARNING"
+
+        Parameters
+        ----------
+        msg : str
+            Message to log.
+        """
+        self.logger.warning(self._format(msg))
+
+    def error(self, msg: str) -> None:
+        """
+        Log a message with level "ERROR"
+
+        Parameters
+        ----------
+        msg : str
+            Message to log.
+        """
+        self.logger.error(self._format(msg))
+
+    def critical(self, msg: str) -> None:
+        """
+        Log a message with level "CRITICAL"
+
+        Parameters
+        ----------
+        msg : str
+            Message to log.
+        """
+        self.logger.critical(self._format(msg))
+
+    def exception(self, msg: str) -> None:
+        """
+        Log an exception with message.
+
+        Parameters
+        ----------
+        msg : str
+            Message to log.
+        """
+        self.logger.exception(self._format(msg))
+
+    @staticmethod
+    def _level_from_str(level_name: str) -> int:
+        numeric_level = getLevelName(level_name.upper())
+        if not isinstance(numeric_level, int):
+            raise ValueError(f"Invalid log level: {level_name}")
+        return numeric_level
+
+    def _format(self, msg: str) -> str:
+        if self.tag is not None:
+            return f"{self.tag} - {msg}"
+        else:
+            return msg

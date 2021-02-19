@@ -1,4 +1,4 @@
-from .core.environment import STARTUP_TIME, LOG_FILE
+from .core.environment import STARTUP_TIME, LOG_LEVEL, LOG_FILE
 from .core.message import Message, MessageType
 from .core.sockets import ClientSocket, ServerSocket
 from pathlib import Path
@@ -13,12 +13,13 @@ class Server:
     and responds with messages of type OK or ERROR.
     """
 
-    __slots__ = ["host", "port", "log_file"]
+    __slots__ = ["host", "port", "log_level", "log_file"]
 
     def __init__(
         self,
         host: str,
         port: int,
+        log_level: Optional[str] = LOG_LEVEL,
         log_file: Optional[Path] = LOG_FILE,
     ) -> None:
         """
@@ -30,15 +31,22 @@ class Server:
             Address of the host to run the server on.
         port : int
             Port where the server will listen.
+        log_level : Optional[str], optional
+            The level to log on (DEBUG, INFO, WARNING, ERROR or CRITICAL),
+            by default LOG_LEVEL.
         log_file : Optional[Path], optional
             Path to the file for writing the logs, by default LOG_FILE.
         """
         self.host = host
         self.port = port
+        self.log_level = log_level
         self.log_file = log_file
 
     def __repr__(self) -> str:
-        return f"Server({self.host!r}, {self.port!r}, {self.log_file!r})"
+        return (
+            f"Server({self.host!r}, {self.port!r}, "
+            + f"{self.log_level!r}, {self.log_file!r})"
+        )
 
     def __str__(self) -> str:
         return (
@@ -54,12 +62,21 @@ class Server:
         INIT = False
         EXIT = False
 
-        with ServerSocket(self.host, self.port, log_file=self.log_file) as ss:
+        with ServerSocket(
+            self.host,
+            self.port,
+            log_level=self.log_level,
+            log_file=self.log_file,
+        ) as ss:
 
             while not EXIT:
                 sock = ss.accept()
 
-                with ClientSocket(sock=sock, log_file=self.log_file) as cs:
+                with ClientSocket(
+                    sock=sock,
+                    log_level=self.log_level,
+                    log_file=self.log_file,
+                ) as cs:
 
                     while True:
 
@@ -136,6 +153,7 @@ class Server:
                 "server",
                 f"{self.host}",
                 f"{self.port}",
+                f"--log-level={str(self.log_level)}",
                 f"--log-file={str(self.log_file)}",
             ]
         )
