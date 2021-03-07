@@ -6,20 +6,26 @@ from bgpy.core.environment import PORT, HOST
 from bgpy.client import Client
 from bgpy.server import Server
 from bgpy.example.tasks import init_task, exec_task, exit_task
+from bgpy.core.token import token_create
 from pathlib import Path
 
 LOG_FILE = Path("tests/test_client_server.log")
 LOG_LEVEL = "DEBUG"
 PORT = PORT + 2
+TOKEN = token_create()
 
 # Create server context
-server = Server(host=HOST, port=PORT, log_level=LOG_LEVEL, log_file=LOG_FILE)
+server = Server(
+    host=HOST, port=PORT, token=TOKEN, log_level=LOG_LEVEL, log_file=LOG_FILE
+)
 
 # Start server in background
 server.run_background()
 
 # Bind client to context
-client = Client(host=HOST, port=PORT, log_level=LOG_LEVEL, log_file=LOG_FILE)
+client = Client(
+    host=HOST, port=PORT, token=TOKEN, log_level=LOG_LEVEL, log_file=LOG_FILE
+)
 
 # Send INIT message from client to server, receive OK
 res_init = client.initialize(init_task, exec_task, exit_task)
