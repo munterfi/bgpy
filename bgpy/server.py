@@ -212,7 +212,7 @@ def respond(
     client_socket: ClientSocket,
     response: dict,
     error: bool = False,
-) -> dict:
+) -> Optional[Message]:
     """
     Respond to the client
 
@@ -232,12 +232,12 @@ def respond(
 
     Returns
     -------
-    dict
-        Response dict of the client.
+    Optional[Message]
+        Response of the client.
     """
     if error:
         msg = Message(MessageType.ERROR, args=response)
     else:
         msg = Message(MessageType.OK, args=response)
     res = client_socket.send(msg)
-    return res.get_args()  # type: ignore
+    return res
