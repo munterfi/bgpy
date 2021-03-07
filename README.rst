@@ -27,7 +27,7 @@ Features:
   parent script is terminated, the server process continues to run in the
   background.
 * Send Python objects between the server and client processes (stored in a
-  :code:`dict`) without worrying about authentication, python object 
+  :code:`dict`) without worrying about authentication, Python object 
   serialization, setting up server and client sockets, message length, and
   chunksize in the network buffer.
 * Due to the socket-based communication between server and client, it is
