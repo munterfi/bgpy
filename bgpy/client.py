@@ -11,15 +11,15 @@ class Client:
     Client to send INIT, EXEC and EXIT messages to the the server.
     """
 
-    __slots__ = ["host", "port", "log_level", "log_file", "token"]
+    __slots__ = ["host", "port", "token", "log_level", "log_file"]
 
     def __init__(
         self,
         host: str,
         port: int,
+        token: Optional[str] = None,
         log_level: str = LOG_LEVEL,
         log_file: Optional[Path] = None,
-        token: Optional[str] = None,
     ) -> None:
         """
         Initializes an object of type 'Client'.
@@ -30,13 +30,13 @@ class Client:
             Address the host where the server runs on.
         port : int
             Port where the server is listening to.
+        token : str, optional
+            Token to authenticate to the server, by default None.
         log_level : str, optional
             The level to log on (DEBUG, INFO, WARNING, ERROR or CRITICAL),
             by default LOG_LEVEL.
         log_file : Optional[Path], optional
             Path to the file for writing the logs, by default None.
-        token : str, optional
-            Token to authenticate to the server, by default None.
         """
         self.host = host
         self.port = port

@@ -3,6 +3,7 @@ from .core.log import Log
 from .core.message import Message, MessageType
 from .core.sockets import ClientSocket, ServerSocket
 from .core.token import token_setenv, token_getenv
+from importlib import util
 from pathlib import Path
 from subprocess import Popen
 from time import sleep
@@ -15,15 +16,24 @@ class Server:
     and responds with messages of type OK or ERROR.
     """
 
-    __slots__ = ["host", "port", "log_level", "log_file", "token", "log"]
+    __slots__ = [
+        "host",
+        "port",
+        "token",
+        "log_level",
+        "log_file",
+        "init_file",
+        "log",
+    ]
 
     def __init__(
         self,
         host: str,
         port: int,
+        token: Optional[str] = None,
         log_level: str = LOG_LEVEL,
         log_file: Optional[Path] = None,
-        token: Optional[str] = None,
+        init_file: Optional[Path] = None,
     ) -> None:
         """
         Initializes a object of type 'Server'.
@@ -34,25 +44,27 @@ class Server:
             Address of the host to run the server on.
         port : int
             Port where the server will listen.
+        token : str, optional
+            Token to check authentification of the client, by default None.
         log_level : str, optional
             The level to log on (DEBUG, INFO, WARNING, ERROR or CRITICAL),
             by default LOG_LEVEL.
         log_file : Optional[Path], optional
             Path to the file for writing the logs, by default None.
-        token : str, optional
-            Token to check authentification of the client, by default None.
         """
         self.host = host
         self.port = port
         self.log_level = log_level
         self.log_file = log_file
         self.token = token
+        self.init_file = init_file
         self.log = Log(__name__, log_level, "Server", log_file, True)
 
     def __repr__(self) -> str:
         return (
             f"Server({self.host!r}, {self.port!r}, "
-            + f"{self.log_level!r}, {self.log_file!r})"
+            + f"{self.log_level!r}, {self.log_file!r},"
+            + f"{self.token!r}, {self.init_file!r})"
         )
 
     def __str__(self) -> str:
@@ -70,6 +82,36 @@ class Server:
         EXIT = False
         TOKEN = token_getenv()
 
+        # Initialize from file
+        if self.init_file is not None:
+            try:
+                self.log.info(f"Loading tasks from '{self.init_file}'")
+                spec = util.spec_from_file_location(
+                    "bgpy.custom.tasks", self.init_file
+                )
+                tasks = util.module_from_spec(spec)
+                spec.loader.exec_module(tasks)
+                assert callable(tasks.init_task)
+                assert callable(tasks.exec_task)
+                assert callable(tasks.exit_task)
+                init_task = tasks.init_task
+                exec_task = tasks.exec_task
+                exit_task = tasks.exit_task
+            except Exception as e:
+                self.log.exception("Unable to load tasks from file")
+                raise e
+
+            # Execute INIT task and setup init_args
+            self.log.info("Executing 'init_task'")
+            init_args = init_task()
+
+            # Confirm initialization
+            self.log.info("Initialization successful")
+
+            # Set INIT to True to avoid second initialization
+            INIT = True
+
+        # Start server socket
         with ServerSocket(
             self.host,
             self.port,
@@ -83,6 +125,7 @@ class Server:
             while not EXIT:
                 sock = ss.accept()
 
+                # Start serverside client socket
                 with ClientSocket(
                     sock=sock,
                     log_level=self.log_level,
@@ -203,6 +246,7 @@ class Server:
                 f"{self.port}",
                 f"--log-level={str(self.log_level)}",
                 f"--log-file={str(self.log_file)}",
+                f"--init-file={str(self.init_file)}",
             ]
         )
         sleep(STARTUP_TIME)
