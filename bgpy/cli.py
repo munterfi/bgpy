@@ -1,5 +1,6 @@
 from .server import Server
 from .client import Client
+from .core.token import token_getenv
 from typer import Typer, echo, Abort, Argument, Option
 from typing import Optional
 from pathlib import Path
@@ -67,10 +68,15 @@ def terminate_server(
     Terminate a bgpy server on the given host, which is listening to the
     provided port.
     """
+    TOKEN = token_getenv()
     if str(log_file) == "None":
         log_file = None
     client = Client(
-        host=host, port=int(port), log_level=log_level, log_file=log_file
+        host=host,
+        port=int(port),
+        token=TOKEN,
+        log_level=log_level,
+        log_file=log_file,
     )
     try:
         client.terminate()

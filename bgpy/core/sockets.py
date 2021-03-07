@@ -135,7 +135,10 @@ class ClientSocket(ContextDecorator):
         if res_enc is None:
             return None
         res = deserialize(res_enc)
-        self.log.info(f"Received '{res}'")
+        if res.type is MessageType.ERROR:
+            self.log.error(f"Received '{res}': {res.get_args()}")
+        else:
+            self.log.info(f"Received '{res}'")
         if await_response:
             self.log.info("Waiting for response")
             res_2 = self.recv()
@@ -182,7 +185,10 @@ class ClientSocket(ContextDecorator):
             return None
         msg = deserialize(msg_enc)
         res_msg = f"Received '{msg}'"
-        self.log.info(res_msg)
+        if msg.type is MessageType.ERROR:
+            self.log.error(f"{res_msg}: {msg.get_args()}")
+        else:
+            self.log.info(res_msg)
         res = Message(MessageType.OK, args={"message": res_msg})
         self.log.info(f"Responding '{res}'")
         res_enc = serialize(res)
