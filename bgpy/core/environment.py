@@ -12,3 +12,6 @@ BUFFER_SIZE = 1024 * 2  # Size of the vjunks in the network buffer
 LOG_LEVEL = "INFO"
 LOG_FORMAT = ("[%(asctime)s %(process)d %(levelname)s] %(message)s (%(name)s)")
 LOG_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
+
+# Env vars
+ENV_TOKEN = "BGPY_TOKEN"
