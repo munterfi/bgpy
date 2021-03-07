@@ -7,6 +7,8 @@ Version 0.2.0.9000
 ------------------
 
 - Features:
+    - A token for authentication in the requests from the client to the server can now be set.
+    - Added token module for handling tokens.
 - Bugfixes:
   
 Version 0.2.0
