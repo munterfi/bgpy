@@ -1,7 +1,7 @@
 from .server import Server
 from .client import Client
-from .core.token import token_getenv
-from typer import Typer, echo, Abort, Argument, Option
+from .core.token import token_getenv, token_setenv
+from typer import Typer, echo, Abort, Argument, Option, prompt
 from typing import Optional
 from pathlib import Path
 
@@ -26,6 +26,12 @@ def run_server(
     log_file: Optional[Path] = Option(
         None, "--log-file", "-f", help="Path to a log file"
     ),
+    token: bool = Option(
+        False,
+        "--token",
+        "-t",
+        help="Set a token for the client server communication",
+    ),
 ) -> None:
     """
     Start a bgpy server.
@@ -36,6 +42,9 @@ def run_server(
     passing 'init_task()', exec_task()' and 'exit_task()' to the server, the
     server will not respond to requests.
     """
+    if token:
+        TOKEN = prompt("Token", hide_input=True)
+        token_setenv(TOKEN)
     if str(log_file) == "None":
         log_file = None
     server = Server(
@@ -61,6 +70,12 @@ def terminate_server(
     log_file: Optional[Path] = Option(
         None, "--log-file", "-f", help="Path to a log file"
     ),
+    token: bool = Option(
+        False,
+        "--token",
+        "-t",
+        help="Set a token for the client server communication",
+    ),
 ) -> None:
     """
     Terminate a bgpy server.
@@ -68,7 +83,11 @@ def terminate_server(
     Terminate a bgpy server on the given host, which is listening to the
     provided port.
     """
-    TOKEN = token_getenv()
+    if token:
+        TOKEN = prompt("Token", hide_input=True)
+        token_setenv(TOKEN)
+    else:
+        TOKEN = token_getenv()
     if str(log_file) == "None":
         log_file = None
     client = Client(
