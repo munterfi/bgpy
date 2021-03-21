@@ -26,4 +26,5 @@
     "python.testing.unittestEnabled": false,
     "python.testing.nosetestsEnabled": false,
     "python.testing.pytestEnabled": true,
+    "python.pythonPath": "/Users/munterfi/Library/Caches/pypoetry/virtualenvs/bgpy-kzQzJL8H-py3.8/bin/python",
 }

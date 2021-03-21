@@ -3,6 +3,14 @@ Changelog
 
 This package uses `semantic versions <https://semver.org/>`_.
 
+Version 0.3.0
+-------------
+
+- Features:
+    - A token for authentication in the requests from the client to the server can now be set (closes #16).
+    - Option to initialize the server from a file containing the task definitions (closes #14).
+    - New token module for handling tokens.
+  
 Version 0.2.0
 -------------
 

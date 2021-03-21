@@ -9,7 +9,8 @@ class MessageType(Enum):
 
         - INIT:    Only sent once to initialize the background process.
         - EXIT:    Command message to tell process to exit.
-        - EXEC: Command message with function call and arguments to execute.
+        - EXEC:    Command message with function call and arguments to execute.
+        - AUTH:    Sent in the beginning of the communication to authenticate.
         - OK:      Response message, optionally with return values.
         - ERROR:   Error response message.
     """
@@ -17,8 +18,9 @@ class MessageType(Enum):
     INIT = 0
     EXEC = 1
     EXIT = 2
-    OK = 3
-    ERROR = 4
+    AUTH = 3
+    OK = 4
+    ERROR = 5
 
 
 class Message:

@@ -27,8 +27,9 @@ Features:
   parent script is terminated, the server process continues to run in the
   background.
 * Send Python objects between the server and client processes (stored in a
-  :code:`dict`) without worrying about serialization, setting up server and
-  client sockets, message length, and chunksize in the network buffer.
+  :code:`dict`) without worrying about authentication, Python object 
+  serialization, setting up server and client sockets, message length, and
+  chunksize in the network buffer.
 * Due to the socket-based communication between server and client, it is
   possible to resume the communication from any location, as long as access to
   the same network is given and the hostname and port on which the server is
@@ -136,14 +137,18 @@ sockets:
     HOST = "127.0.0.1"
     PORT = 54321
 
+    # Optionally set a token for the client authentication
+    from bgpy import token_create
+    TOKEN = token_create()
+
     # Create server context
-    server = Server(host=HOST, port=PORT)
+    server = Server(host=HOST, port=PORT, token=TOKEN)
 
     # Start server in background from context
     server.run_background()
 
     # Bind client to server context
-    client = Client(host=HOST, port=PORT)
+    client = Client(host=HOST, port=PORT, token=TOKEN)
 
     # Send INIT message from client to server, receive OK
     response = client.initialize(init_task, exec_task, exit_task)

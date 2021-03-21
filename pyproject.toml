@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bgpy"
-version = "0.2.0"
+version = "0.3.0"
 description = "Running local or remote Python servers in the background and establish stream socket-based communication with clients."
 maintainers = ["Merlin Unterfinger <info@munterfinger.ch>"]
 authors = ["Merlin Unterfinger <info@munterfinger.ch>"]

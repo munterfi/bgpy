@@ -5,7 +5,7 @@
 #                system.
 # Author        :Merlin Unterfinger <info@munterfinger.ch>
 # Date          :2021-01-18
-# Version       :0.1.0
+# Version       :0.3.0
 # Usage         :./install.sh
 # Notes         :
 # Bash          :5.1.4
