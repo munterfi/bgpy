@@ -8,15 +8,23 @@ from bgpy.server import Server
 from bgpy.example.tasks import init_task, exec_task, exit_task
 from bgpy.core.token import token_create
 from pathlib import Path
+import importlib.resources as resources
 
-LOG_FILE = Path("tests/test_client_server.log")
+LOG_FILE = Path("tests/test_file_init.log")
 LOG_LEVEL = "DEBUG"
-PORT = PORT + 2
+PORT = PORT + 3
 TOKEN = token_create()
+with resources.path("bgpy.example", "tasks.py") as file_path:
+    INIT_FILE = file_path
 
 # Create server context
 server = Server(
-    host=HOST, port=PORT, token=TOKEN, log_level=LOG_LEVEL, log_file=LOG_FILE
+    host=HOST,
+    port=PORT,
+    token=TOKEN,
+    log_level=LOG_LEVEL,
+    log_file=LOG_FILE,
+    init_file=INIT_FILE,
 )
 
 # Start server in background
@@ -27,19 +35,11 @@ client = Client(
     host=HOST, port=PORT, token=TOKEN, log_level=LOG_LEVEL, log_file=LOG_FILE
 )
 
-# Send INIT message from client to server, receive OK
-res_init = client.initialize(init_task, exec_task, exit_task)
-
-
-def test_initialize():
-    assert res_init["message"] == "Initialization successful."
-
-
 # Send second INIT message from client to server, receive ERROR
 res_init_error = client.initialize(init_task, exec_task, exit_task)
 
 
-def test_initialize_error():
+def test_file_initialize_error():
     assert res_init_error["message"] == "Already initialized."
 
 
@@ -51,7 +51,7 @@ res_exec_1 = client.execute({"command": "increase", "value_change": 10})
 res_exec_2 = client.execute({"command": "decrease", "value_change": 100})
 
 
-def test_execution():
+def test_file_execution():
     assert res_exec_1["message"] == "Received 'EXEC'"
     assert res_exec_2["message"] == "Received 'EXEC'"
 
@@ -60,6 +60,6 @@ def test_execution():
 res_exit = client.terminate(await_response=True)
 
 
-def test_terminate():
+def test_file_terminate():
     assert isinstance(res_exit, dict)
     assert res_exit["request_count"] == 3

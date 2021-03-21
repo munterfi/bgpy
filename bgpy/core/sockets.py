@@ -1,8 +1,4 @@
-from .environment import (
-    BACKLOG_SIZE,
-    HEADER_SIZE,
-    BUFFER_SIZE,
-)
+from .environment import BACKLOG_SIZE, HEADER_SIZE, BUFFER_SIZE, BUFFER_TIME
 from .log import Log
 from .message import Message, MessageType
 from .serialize import serialize, deserialize
@@ -135,7 +131,10 @@ class ClientSocket(ContextDecorator):
         if res_enc is None:
             return None
         res = deserialize(res_enc)
-        self.log.info(f"Received '{res}'")
+        if res.type is MessageType.ERROR:
+            self.log.error(f"Received '{res}': {res.get_args()}")
+        else:
+            self.log.info(f"Received '{res}'")
         if await_response:
             self.log.info("Waiting for response")
             res_2 = self.recv()
@@ -162,8 +161,12 @@ class ClientSocket(ContextDecorator):
             None
         """
         msg = bytes(f"{len(msg):<{HEADER_SIZE}}", "utf-8") + msg
-        self.sock.sendall(msg)
-        sleep(0.1)  # Give receiver time to complete reading.
+        try:
+            self.sock.sendall(msg)
+        except Exception:
+            self.log.exception("Sending message failed")
+            pass
+        sleep(BUFFER_TIME)
 
     def recv(self) -> Optional[Message]:
         """
@@ -182,7 +185,10 @@ class ClientSocket(ContextDecorator):
             return None
         msg = deserialize(msg_enc)
         res_msg = f"Received '{msg}'"
-        self.log.info(res_msg)
+        if msg.type is MessageType.ERROR:
+            self.log.error(f"{res_msg}: {msg.get_args()}")
+        else:
+            self.log.info(res_msg)
         res = Message(MessageType.OK, args={"message": res_msg})
         self.log.info(f"Responding '{res}'")
         res_enc = serialize(res)
@@ -209,7 +215,13 @@ class ClientSocket(ContextDecorator):
         chunk_count = 0
         while True:
             chunk_count += 1
-            chunk = self.sock.recv(BUFFER_SIZE)
+            try:
+                chunk = self.sock.recv(BUFFER_SIZE)
+            except Exception:
+                self.log.exception(
+                    f"Receiving message chunk '{chunk_count}' failed"
+                )
+                return None
             if chunk == b"":
                 return None
             if chunk_count == 1:
@@ -218,6 +230,7 @@ class ClientSocket(ContextDecorator):
             msg += chunk
             if len(msg) - HEADER_SIZE == msg_len:
                 self.log.debug(f"Message complete with chunks={chunk_count}")
+                sleep(BUFFER_TIME)
                 return msg[HEADER_SIZE:]
 
 

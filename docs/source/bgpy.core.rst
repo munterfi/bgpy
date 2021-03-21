@@ -44,6 +44,14 @@ bgpy.core.sockets module
    :undoc-members:
    :show-inheritance:
 
+bgpy.core.token module
+----------------------
+
+.. automodule:: bgpy.core.token
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

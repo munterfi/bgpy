@@ -7,6 +7,9 @@ Version 0.2.0.9000
 ------------------
 
 - Features:
+    - A token for authentication in the requests from the client to the server can now be set (closes #16).
+    - Option to initialize the server from a file containing the task definitions (closes #14).
+    - New token module for handling tokens.
 - Bugfixes:
   
 Version 0.2.0

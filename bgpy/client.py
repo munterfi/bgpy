@@ -11,12 +11,13 @@ class Client:
     Client to send INIT, EXEC and EXIT messages to the the server.
     """
 
-    __slots__ = ["host", "port", "log_level", "log_file"]
+    __slots__ = ["host", "port", "token", "log_level", "log_file"]
 
     def __init__(
         self,
         host: str,
         port: int,
+        token: Optional[str] = None,
         log_level: str = LOG_LEVEL,
         log_file: Optional[Path] = None,
     ) -> None:
@@ -29,6 +30,8 @@ class Client:
             Address the host where the server runs on.
         port : int
             Port where the server is listening to.
+        token : str, optional
+            Token to authenticate to the server, by default None.
         log_level : str, optional
             The level to log on (DEBUG, INFO, WARNING, ERROR or CRITICAL),
             by default LOG_LEVEL.
@@ -37,6 +40,7 @@ class Client:
         """
         self.host = host
         self.port = port
+        self.token = token
         self.log_level = log_level
         self.log_file = log_file
 
@@ -93,15 +97,19 @@ class Client:
             log_level=self.log_level, log_file=self.log_file
         ) as cs:
             cs.connect(self.host, self.port)
-            msg = Message(
-                MessageType.INIT,
-                args={
-                    "init_task": init_task,
-                    "exec_task": exec_task,
-                    "exit_task": exit_task,
-                },
-            )
-            res = cs.send(msg, await_response=True)
+            res_auth = self._authenticate(cs)
+            if res_auth.type is MessageType.OK:
+                msg = Message(
+                    MessageType.INIT,
+                    args={
+                        "init_task": init_task,
+                        "exec_task": exec_task,
+                        "exit_task": exit_task,
+                    },
+                )
+                res = cs.send(msg, await_response=True)
+            else:
+                res = res_auth
             if res is not None:
                 return res.get_args()
             else:
@@ -137,8 +145,12 @@ class Client:
             log_level=self.log_level, log_file=self.log_file
         ) as cs:
             cs.connect(self.host, self.port)
-            msg = Message(MessageType.EXEC, args=exec_args)
-            res = cs.send(msg, await_response=await_response)
+            res_auth = self._authenticate(cs)
+            if res_auth.type is MessageType.OK:
+                msg = Message(MessageType.EXEC, args=exec_args)
+                res = cs.send(msg, await_response=await_response)
+            else:
+                res = res_auth
             return res.get_args()
 
     def terminate(
@@ -169,7 +181,16 @@ class Client:
             log_level=self.log_level, log_file=self.log_file
         ) as cs:
             cs.connect(self.host, self.port)
-            msg = Message(MessageType.EXIT, args=exit_args)
-            res = cs.send(msg, await_response=await_response)
-        sleep(STARTUP_TIME)
+            res_auth = self._authenticate(cs)
+            if res_auth.type is MessageType.OK:
+                msg = Message(MessageType.EXIT, args=exit_args)
+                res = cs.send(msg, await_response=await_response)
+                sleep(STARTUP_TIME)
+            else:
+                res = res_auth
         return res.get_args()
+
+    def _authenticate(self, cs) -> Message:
+        msg = Message(MessageType.AUTH, args={"token": self.token})
+        res = cs.send(msg, await_response=True)
+        return res

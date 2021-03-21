@@ -2,6 +2,8 @@ from .core.environment import STARTUP_TIME, LOG_LEVEL
 from .core.log import Log
 from .core.message import Message, MessageType
 from .core.sockets import ClientSocket, ServerSocket
+from .core.token import token_setenv, token_getenv
+from importlib import util
 from pathlib import Path
 from subprocess import Popen
 from time import sleep
@@ -14,14 +16,24 @@ class Server:
     and responds with messages of type OK or ERROR.
     """
 
-    __slots__ = ["host", "port", "log_level", "log_file", "log"]
+    __slots__ = [
+        "host",
+        "port",
+        "token",
+        "log_level",
+        "log_file",
+        "init_file",
+        "log",
+    ]
 
     def __init__(
         self,
         host: str,
         port: int,
+        token: Optional[str] = None,
         log_level: str = LOG_LEVEL,
         log_file: Optional[Path] = None,
+        init_file: Optional[Path] = None,
     ) -> None:
         """
         Initializes a object of type 'Server'.
@@ -32,6 +44,8 @@ class Server:
             Address of the host to run the server on.
         port : int
             Port where the server will listen.
+        token : str, optional
+            Token to check authentification of the client, by default None.
         log_level : str, optional
             The level to log on (DEBUG, INFO, WARNING, ERROR or CRITICAL),
             by default LOG_LEVEL.
@@ -42,12 +56,15 @@ class Server:
         self.port = port
         self.log_level = log_level
         self.log_file = log_file
+        self.token = token
+        self.init_file = init_file
         self.log = Log(__name__, log_level, "Server", log_file, True)
 
     def __repr__(self) -> str:
         return (
             f"Server({self.host!r}, {self.port!r}, "
-            + f"{self.log_level!r}, {self.log_file!r})"
+            + f"{self.log_level!r}, {self.log_file!r},"
+            + f"{self.token!r}, {self.init_file!r})"
         )
 
     def __str__(self) -> str:
@@ -56,14 +73,45 @@ class Server:
             + f"'{self.host}:{self.port}'"
         )
 
-    def run(self):
+    def run(self):  # noqa: C901
         """
         Start the main loop of the server.
         """
 
         INIT = False
         EXIT = False
+        TOKEN = token_getenv()
 
+        # Initialize from file
+        if self.init_file is not None:
+            try:
+                self.log.info(f"Loading tasks from '{self.init_file}'")
+                spec = util.spec_from_file_location(
+                    "bgpy.custom.tasks", self.init_file
+                )
+                tasks = util.module_from_spec(spec)
+                spec.loader.exec_module(tasks)
+                assert callable(tasks.init_task)
+                assert callable(tasks.exec_task)
+                assert callable(tasks.exit_task)
+                init_task = tasks.init_task
+                exec_task = tasks.exec_task
+                exit_task = tasks.exit_task
+            except Exception as e:
+                self.log.exception("Unable to load tasks from file")
+                raise e
+
+            # Execute INIT task and setup init_args
+            self.log.info("Executing 'init_task'")
+            init_args = init_task()
+
+            # Confirm initialization
+            self.log.info("Initialization successful")
+
+            # Set INIT to True to avoid second initialization
+            INIT = True
+
+        # Start server socket
         with ServerSocket(
             self.host,
             self.port,
@@ -71,14 +119,20 @@ class Server:
             log_file=self.log_file,
         ) as ss:
 
+            if TOKEN is not None:
+                self.log.info("Authentication token is set")
+
             while not EXIT:
                 sock = ss.accept()
 
+                # Start serverside client socket
                 with ClientSocket(
                     sock=sock,
                     log_level=self.log_level,
                     log_file=self.log_file,
                 ) as cs:
+
+                    AUTH = False
 
                     while True:
 
@@ -87,14 +141,44 @@ class Server:
                         if msg is None:
                             break
 
+                        # Message type: AUTH
+                        if msg.type is MessageType.AUTH:
+                            token = msg.get_args()["token"]
+                            if token == TOKEN or TOKEN is None:
+
+                                # Set AUTH to True to allow further messages
+                                AUTH = True
+
+                                # Confirm authentication
+                                auth_msg = "Authentication successful"
+                                self.log.info(auth_msg)
+                                respond(
+                                    cs,
+                                    {"message": f"{auth_msg}."},
+                                    error=False,
+                                )
+                            else:
+                                auth_msg = "Invalid client authentication"
+                                self.log.warning(auth_msg)
+                                respond(
+                                    cs, {"message": f"{auth_msg}."}, error=True
+                                )
+                            continue
+
+                        if not AUTH:
+                            self.log.warning(
+                                "Unauthorized access attempt of type "
+                                + f"'{msg.type.name}'"
+                            )
+                            continue
+
                         # Message type: INIT
                         if msg.type is MessageType.INIT:
                             if INIT:
-                                self.log.warning("Already initialized")
+                                init_msg = "Already initialized"
+                                self.log.warning(init_msg)
                                 respond(
-                                    cs,
-                                    {"message": "Already initialized."},
-                                    error=True,
+                                    cs, {"message": f"{init_msg}."}, error=True
                                 )
                                 continue
 
@@ -112,11 +196,10 @@ class Server:
                             INIT = True
 
                             # Confirm initialization
-                            self.log.info("Initialization successful")
+                            init_msg = "Initialization successful"
+                            self.log.info(init_msg)
                             respond(
-                                cs,
-                                {"message": "Initialization successful."},
-                                error=False,
+                                cs, {"message": f"{init_msg}."}, error=False
                             )
                             continue
 
@@ -124,8 +207,8 @@ class Server:
                         if msg.type is MessageType.EXIT:
 
                             # Execute exit_task, returns None
-                            self.log.info("Executing 'exit_task'")
                             if INIT:
+                                self.log.info("Executing 'exit_task'")
                                 _ = exit_task(cs, init_args, msg.get_args())
 
                             # Set exit to True and trigger exit
@@ -154,6 +237,7 @@ class Server:
         Optional[dict]
             Response of the server.
         """
+        token_setenv(self.token)
         _ = Popen(
             [
                 "bgpy",
@@ -162,6 +246,7 @@ class Server:
                 f"{self.port}",
                 f"--log-level={str(self.log_level)}",
                 f"--log-file={str(self.log_file)}",
+                f"--init-file={str(self.init_file)}",
             ]
         )
         sleep(STARTUP_TIME)
@@ -171,7 +256,7 @@ def respond(
     client_socket: ClientSocket,
     response: dict,
     error: bool = False,
-) -> dict:
+) -> Optional[Message]:
     """
     Respond to the client
 
@@ -191,12 +276,12 @@ def respond(
 
     Returns
     -------
-    dict
-        Response dict of the client.
+    Optional[Message]
+        Response of the client.
     """
     if error:
         msg = Message(MessageType.ERROR, args=response)
     else:
         msg = Message(MessageType.OK, args=response)
     res = client_socket.send(msg)
-    return res.get_args()  # type: ignore
+    return res
