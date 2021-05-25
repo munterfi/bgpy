@@ -3,13 +3,6 @@ Changelog
 
 This package uses `semantic versions <https://semver.org/>`_.
 
-Version 0.3.0.9000
-------------------
-
-- Features:
-- Bugfixes:
-
-
 Version 0.3.0
 -------------
 
