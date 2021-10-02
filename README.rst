@@ -6,15 +6,15 @@ bgpy
 .. image:: https://img.shields.io/pypi/v/bgpy.svg
         :target: https://pypi.python.org/pypi/bgpy
 
-.. image:: https://github.com/munterfinger/bgpy/workflows/check/badge.svg
-        :target: https://github.com/munterfinger/bgpy/actions?query=workflow%3Acheck
+.. image:: https://github.com/munterfi/bgpy/workflows/check/badge.svg
+        :target: https://github.com/munterfi/bgpy/actions?query=workflow%3Acheck
 
 .. image:: https://readthedocs.org/projects/bgpy/badge/?version=latest
         :target: https://bgpy.readthedocs.io/en/latest/
         :alt: Documentation Status
 
-.. image:: https://codecov.io/gh/munterfinger/bgpy/branch/master/graph/badge.svg
-        :target: https://codecov.io/gh/munterfinger/bgpy
+.. image:: https://codecov.io/gh/munterfi/bgpy/branch/master/graph/badge.svg
+        :target: https://codecov.io/gh/munterfi/bgpy
 
 
 Running local or remote Python servers in the background using the subprocess

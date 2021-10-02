@@ -74,7 +74,7 @@ html_theme = "pydata_sphinx_theme"
 # further.  For a list of options available for each theme, see the
 # documentation.
 html_theme_options = {
-    "github_url": "https://github.com/munterfinger/bgpy",
+    "github_url": "https://github.com/munterfi/bgpy",
     "twitter_url": "https://twitter.com/munterfi1",
 }
 

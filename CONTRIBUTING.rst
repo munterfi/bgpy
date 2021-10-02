@@ -8,7 +8,7 @@ Getting started
 
 Ready to contribute? Here's how to set up **bgpy** for local development.
 
-1. Clone the repository: :code:`git clone https://github.com/munterfinger/bgpy.git`
+1. Clone the repository: :code:`git clone https://github.com/munterfi/bgpy.git`
 2. Install the dependencies: :code:`poetry install`
 3. Create a feature branch for local development: :code:`git checkout -b feature/<the-feature-name> develop`
 4. Work locally on the feature, make sure to add or adjust:

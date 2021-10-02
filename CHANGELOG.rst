@@ -3,6 +3,12 @@ Changelog
 
 This package uses `semantic versions <https://semver.org/>`_.
 
+Version 0.3.1
+-------------
+
+- Bugfixes:
+    - Adjust URLs to GitHub account due to renaming munterfinger to munterfi.
+
 Version 0.3.0
 -------------
 

@@ -8,7 +8,7 @@ license = "MIT"
 readme = "README.rst"
 homepage = "https://pypi.org/project/bgpy/"
 documentation = "https://bgpy.readthedocs.io/en/latest/"
-repository = "https://github.com/munterfinger/bgpy"
+repository = "https://github.com/munterfi/bgpy"
 
 [tool.poetry.scripts]
 bgpy = "bgpy.cli:main"
