@@ -326,7 +326,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
 name = "pydata-sphinx-theme"
-version = "0.7.0"
+version = "0.7.1"
 description = "Bootstrap-based Sphinx theme from the PyData community"
 category = "dev"
 optional = false
@@ -632,7 +632,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6"
-content-hash = "1fbb46cf8ed1a5c579a0d2fe6813ac690554b216aaa660cb6b97f98e312ec699"
+content-hash = "ceb86b64f2c6d24504db5cb29a6c041eed888ac6b87deeee9ef33acc2f4b97bb"
 
 [metadata.files]
 alabaster = [
@@ -681,6 +681,7 @@ codecov = [
 ]
 colorama = [
     {file = "colorama-0.4.4-py2.py3-none-any.whl", hash = "sha256:9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2"},
+    {file = "colorama-0.4.4.tar.gz", hash = "sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b"},
 ]
 coverage = [
     {file = "coverage-5.5-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:b6d534e4b2ab35c9f93f46229363e17f63c53ad01330df9f2d6bd1187e5eaacf"},
@@ -761,6 +762,7 @@ importlib-metadata = [
     {file = "importlib_metadata-4.8.1.tar.gz", hash = "sha256:f284b3e11256ad1e5d03ab86bb2ccd6f5339688ff17a4d797a0fe7df326f23b1"},
 ]
 iniconfig = [
+    {file = "iniconfig-1.1.1-py2.py3-none-any.whl", hash = "sha256:011e24c64b7f47f6ebd835bb12a743f2fbe9a26d4cecaa7f53bc4f35ee9da8b3"},
     {file = "iniconfig-1.1.1.tar.gz", hash = "sha256:bc3af051d7d14b2ee5ef9969666def0cd1a000e121eaea580d4a313df4b37f32"},
 ]
 jinja2 = [
@@ -877,8 +879,8 @@ pycodestyle = [
     {file = "pycodestyle-2.7.0.tar.gz", hash = "sha256:c389c1d06bf7904078ca03399a4816f974a1d590090fecea0c63ec26ebaf1cef"},
 ]
 pydata-sphinx-theme = [
-    {file = "pydata-sphinx-theme-0.7.0.tar.gz", hash = "sha256:e549c907b1e0bb08b152db20daf577522d74a650e157b3dad8385e5db4c6e182"},
-    {file = "pydata_sphinx_theme-0.7.0-py3-none-any.whl", hash = "sha256:60af9000ce6b512e20102b8b43e8f0a3bbc700579acc078afe35eb362aa10949"},
+    {file = "pydata-sphinx-theme-0.7.1.tar.gz", hash = "sha256:bda31425085f076932f0a85cb6156f63ff82673d75100614bebb5e5f28798166"},
+    {file = "pydata_sphinx_theme-0.7.1-py3-none-any.whl", hash = "sha256:354919a7b13e83dfc8df06e92d11ce7087875dcd6d34e4eeed997074e18ed131"},
 ]
 pyflakes = [
     {file = "pyflakes-2.3.1-py2.py3-none-any.whl", hash = "sha256:7893783d01b8a89811dd72d7dfd4d84ff098e5eed95cfa8905b22bbffe52efc3"},
