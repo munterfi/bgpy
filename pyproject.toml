@@ -22,7 +22,7 @@ importlib-metadata = { version = ">=3.4,<5.0", python = "<3.8" }
 black = "^20.8b1"
 codecov = "^2.1.12"
 flake8 = "^3.9.2"
-mypy = "^0.940"
+mypy = "^0.941"
 pydata-sphinx-theme = "^0.7.2"
 pytest = "^7.0.1"
 pytest-cov = "^3.0.0"
