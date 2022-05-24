@@ -27,7 +27,7 @@ pydata-sphinx-theme = "^0.7.2"
 pytest = "^7.0.1"
 pytest-cov = "^3.0.0"
 Sphinx = "^4.5.0"
-tomlkit = "^0.10.2"
+tomlkit = "^0.11.0"
 
 [mypy]
 ignore_missing_imports = true
