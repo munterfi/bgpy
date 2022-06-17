@@ -458,7 +458,7 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "sphinx"
-version = "5.0.1"
+version = "5.0.2"
 description = "Python documentation generator"
 category = "dev"
 optional = false
@@ -644,7 +644,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6"
-content-hash = "e0532b3441fbc32755168c66955a678e8b62219a58b3b75b6d9d0727898b150e"
+content-hash = "d4a8c2613f98c20ab13c6ccc42eafd1d934ff4a882de4fe9cc69afba12cbf63d"
 
 [metadata.files]
 alabaster = [
@@ -989,8 +989,8 @@ soupsieve = [
     {file = "soupsieve-2.2.1.tar.gz", hash = "sha256:052774848f448cf19c7e959adf5566904d525f33a3f8b6ba6f6f8f26ec7de0cc"},
 ]
 sphinx = [
-    {file = "Sphinx-5.0.1-py3-none-any.whl", hash = "sha256:36aa2a3c2f6d5230be94585bc5d74badd5f9ed8f3388b8eedc1726fe45b1ad30"},
-    {file = "Sphinx-5.0.1.tar.gz", hash = "sha256:f4da1187785a5bc7312cc271b0e867a93946c319d106363e102936a3d9857306"},
+    {file = "Sphinx-5.0.2-py3-none-any.whl", hash = "sha256:d3e57663eed1d7c5c50895d191fdeda0b54ded6f44d5621b50709466c338d1e8"},
+    {file = "Sphinx-5.0.2.tar.gz", hash = "sha256:b18e978ea7565720f26019c702cd85c84376e948370f1cd43d60265010e1c7b0"},
 ]
 sphinxcontrib-applehelp = [
     {file = "sphinxcontrib-applehelp-1.0.2.tar.gz", hash = "sha256:a072735ec80e7675e3f432fcae8610ecf509c5f1869d17e2eecff44389cdbc58"},
